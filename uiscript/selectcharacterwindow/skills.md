@@ -1,52 +1,49 @@
-# 🎓 Metin2 Skills: `selectcharacterwindow.py` (Karakter Seçim Ekranı Tasarımı)
+# 🎓 Metin2 Skills: `selectcharacterwindow.py` (Karakter Seçme Ekranı)
 
-`selectcharacterwindow.py`, giriş yaptıktan sonra gelen ve hesaptaki mevcut karakterlerden birini seçtiğin, sildiğin veya yeni karakter oluşturduğun tam ekran arayüzünün tasarım dosyasıdır.
+`selectcharacterwindow.py`, oyuncunun giriş yaptıktan sonra hangi karakteriyle oyuna başlayacağını seçtiği, karakterlerinin istatistiklerini ve görünümlerini incelediği ekrandır.
 
 ---
 
 ## 🔍 Neleri Yönetir?
 
-### 1. Tam Ekran Ölçekleme (`expanded_image`)
-Tüm arka plan öğeleri `SCREEN_WIDTH` ve `SCREEN_HEIGHT` değerlerini kullanarak her çözünürlükte (800x600, 1024x768, 1920x1080) ekranı tam kaplayacak şekilde gerilir.
+### 1. Karakter İstatistikleri (`Gauge`)
+Seçili karakterin temel güç değerlerini renkli çubuklarla (`gauge`) gösterir:
+- **`character_hth`**: HP (Kırmızı).
+- **`character_int`**: SP (Pembe).
+- **`character_str`**: Saldırı Gücü (Mor).
+- **`character_dex`**: Savunma/Çeviklik (Mavi).
 
-### 2. Arka Plan Katmanları
-Birden fazla arka plan katmanı üst üste kullanılır:
-- **`BackGroundPattern`**: Tekrarlanan desen.
-- **`Alpha`**: Şeffaflık gradyanı (üst ve alt kenarları karartır).
-- **`Top_Line` / `Bottom_Line`**: Üst ve alt dekoratif çizgiler.
+### 2. İmparatorluk ve Lonca Bilgisi
+Karakterin hangi krallığa ait olduğunu (`EmpireFlag`) ve varsa lonca ismini (`GuildName`) barındıran alanlardır.
 
-### 3. Karakter Slotları
-Hesaptaki her karakter için bir slot butonu sunar. Tıklandığında 3D karakter modeli sahneye yüklenir.
-
-### 4. İşlem Butonları
-Seçilen karakter ile yapılacak eylemlerin (Oyna, Sil, Yeni Oluştur) tasarımını içerir.
+### 3. Kontrol Butonları
+- **`start_button`**: Oyuna girişi sağlar.
+- **`create_button`**: Boş bir slot seçiliyse yeni karakter oluşturma ekranına yönlendirir.
+- **`delete_button`**: Seçili karakteri silme işlemini tetikler.
+- **`left / right_button`**: 3D karakter modelleri arasında geçiş yapmayı (Karakterleri döndürmeyi veya seçmeyi) sağlar.
 
 ---
 
 ## 🛠️ Modifikasyon ve Kritik Uyarılar
 
-### ✅ Arka Plan Değiştirme:
-Karakter seçim ekranına sunucunuza özel bir arka plan koymak istersen `BackGround` içindeki `image` yolunu değiştirmen yeterlidir.
+### ✅ Arayüz Tasarımı:
+Bu ekran genellikle tam ekran (`width: SCREEN_WIDTH`) olarak tasarlanır. Arka plandaki 3D harita (Örn: `Select.msm`) `root/introselect.py` içinden yüklenir. Buradaki `.py` dosyası sadece üzerindeki 2D panelleri yönetir.
 
-### ✅ Ölçek Formülleri:
-`float(SCREEN_WIDTH) / 800.0` gibi formüller, 800 piksel genişliğindeki orijinal görseli ekrana göre esnetiyor. Farklı boyutlu arka plan kullandığında bu böleni güncellemelisin.
-
-### ⚠️ Konum Hesaplamaları:
-`BOARD_X = SCREEN_WIDTH * (65) / 800` gibi formüller, panelin her çözünürlükte aynı oransal konumda kalmasını sağlar. Sabit piksel değerleri kullanırsan düşük çözünürlüklerde taşma olabilir.
+### ⚠️ Koordinat Dinamiği:
+Butonların ve metinlerin konumları `BOARD_ITEM_ADD_POSITION` gibi değişkenlerle ekran çözünürlüğüne göre dinamik olarak kaydırılabilir.
 
 ---
 
-## 📉 selectcharacterwindow.py Katman Yapısı
+## 📉 selectcharacterwindow.py Tasarım Hiyerarşisi
 ```mermaid
 graph TD
-    A[SelectCharacterWindow: Tam Ekran] --> B[BackGroundPattern: Tekrarlayan Desen]
-    A --> C[Alpha: Şeffaflık Maskesi]
-    A --> D[Top/Bottom Lines: Dekoratif Çizgiler]
-    A --> E[BackGround: Ana Arka Plan]
-    A --> F[CharacterSlots: Karakter Butonları]
-    A --> G[ActionButtons: Oyna / Sil / Oluştur]
+    A[SelectCharacterWindow] --> B[Board: Sol Bilgi Paneli]
+    B --> C[InfoSection: İsim, Seviye, Oynama Süresi]
+    B --> D[StatSection: HP, SP, STR, DEX Çubukları]
+    B --> E[ActionSection: Başla, Kur, Sil, Çık]
+    A --> F[NavigationButtons: Sağ/Sol Seçim Okları]
 ```
 
 ---
 
-**Sonuç:** `selectcharacterwindow.py`, oyuna ilk adımda gördüğün "Vitrindir". Karakterlerinin şık bir şekilde sunulmasını sağlar.
+**Veri Akışı:** `Server (Character List)` -> `root/introselect.py` -> `selectcharacterwindow.py` -> Ekran.

@@ -1,44 +1,48 @@
-# 🎓 Metin2 Skills: `selectempirewindow.py` (Krallık Seçim Tasarımı)
+# 🎓 Metin2 Skills: `selectempirewindow.py` (Krallık Seçme Ekranı)
 
-`selectempirewindow.py`, yeni karakter oluşturulurken gelen krallık (İmparatorluk) seçim ekranının tasarım dosyasıdır. Shinsoo, Chunjo ve Jinno arasında seçim yapılır.
+`selectempirewindow.py`, yeni bir hesapla oyuna başlandığında oyuncunun hangi krallığa (Shinsoo, Chunjo, Jinno) katılacağını seçtiği, krallıkların haritadaki yerlerini ve bayraklarını gördüğü ekrandır.
 
 ---
 
 ## 🔍 Neleri Yönetir?
 
-### 1. Krallık Butonları
-Üç krallığı temsil eden büyük sembol butonlarının konumlarını ve görsellerini belirler.
+### 1. Dünya Haritası ve Alanlar (`Atlas`)
+Dünya haritasını (`atlas.sub`) ve krallıkların bu harita üzerindeki coğrafi sınırlarını (`EmpireArea_A, B, C`) barındırır.
+- **`EmpireAreaFlag`**: Harita üzerinde krallıkların başkentlerini işaretleyen küçük bayrak ikonlarıdır.
 
-### 2. Krallık Açıklamaları
-Her krallığın özelliklerini anlatan metin alanlarının yerleşimini yönetir. Hangi krallık seçiliyse o krallığın açıklaması görünür.
+### 2. Bilgi Paneli (`empire_board`)
+Seçili krallık hakkında detaylı bilgi sunan yan paneldir:
+- **`EmpireFlag`**: Seçilen krallığın büyük bayrak görselini gösterir.
+- **`text_board`**: Krallığın tarihçesi ve özelliklerini anlatan metin alanıdır. `prev_text_button` ve `next_text_button` ile metin sayfaları arasında gezilebilir.
 
-### 3. Harita Görseli
-Arka planda dünya haritasının gösterilmesi ve seçilen krallığın harita üzerinde vurgulanmasını sağlar.
-
-### 4. Tam Ekran Arka Plan
-Diğer intro ekranları gibi `expanded_image` ile her çözünürlükte tam kaplama sağlar.
+### 3. Kontrol Butonları
+- **`select_button`**: Krallık seçimini onaylar ve karakter oluşturma ekranına geçer.
+- **`exit_button`**: Giriş ekranına geri döner.
 
 ---
 
 ## 🛠️ Modifikasyon ve Kritik Uyarılar
 
-### ✅ Krallık Açıklamalarını Değiştirme:
-Açıklama metinleri `uiScriptLocale` üzerinden çekilir. Farklı dil dosyalarını düzenleyerek krallık tanıtımlarını özelleştirebilirsin.
+### ✅ Krallık İsimlerini/Resimlerini Değiştirme:
+Eğer krallıkların isimlerini veya bayraklarını değiştirmek istiyorsan, `LOCALE_PATH` içindeki `.sub` dosyalarını ve buradaki görsel yollarını güncelleyebilirsin.
 
-### ⚠️ Krallık Sayısı:
-3 krallık yapısı oyun motorunun derinliklerine işlenmiştir. 4. krallık eklemek sadece bu dosyayı değil, sunucu ve motor kodlarını da değiştirmeyi gerektirir.
+### ⚠️ `rect` ve Ölçeklendirme:
+`BackGround` ve `Alpha` katmanları `rect` parametresi kullanarak deseni tüm ekrana yayar. Ekran çözünürlüğü değişse bile desenin bozulmadan tekrarlanmasını sağlar.
 
 ---
 
-## 📉 selectempirewindow.py Yapısı
+## 📉 selectempirewindow.py Tasarım Hiyerarşisi
 ```mermaid
 graph TD
-    A[SelectEmpireWindow: Tam Ekran] --> B[BackGround: Dünya Haritası]
-    A --> C[EmpireButtons: 3 Krallık Sembolü]
-    A --> D[Description: Krallık Açıklaması]
-    A --> E[ConfirmButton: Seçimi Onayla]
+    A[SelectEmpireWindow] --> B[Atlas: Dünya Haritası]
+    B --> B1[EmpireArea: Krallık Sınırları]
+    B --> B2[EmpireFlag: Harita Bayrakları]
+    A --> C[EmpireBoard: Bilgi Paneli]
+    C --> C1[FlagDisplay: Büyük Bayrak]
+    C --> C2[TextHistory: Krallık Hikayesi]
+    C --> C3[ActionButtons: Seç ve Çık]
 ```
 
 ---
 
-**Sonuç:** `selectempirewindow.py`, oyuncunun "Vatandaşlık Belgesi"dir. Bu seçim karakterin tüm oyun boyunca ait olacağı tarafı belirler.
+**Veri Akışı:** `İstemci Ayarları` -> `root/introempire.py` -> `selectempirewindow.py` -> Ekran.

@@ -1,38 +1,46 @@
-# 🎓 Metin2 Skills: `systemdialog.py` (Çıkış Menüsü Tasarımı)
+# 🎓 Metin2 Skills: `systemdialog.py` (Sistem Menüsü - ESC)
 
-`systemdialog.py`, ESC tuşuna basıldığında açılan ve "Oyunu Kapat", "Karakteri Değiştir", "İptal" gibi seçenekleri sunan sistem menüsünün tasarım dosyasıdır.
+`systemdialog.py`, oyuncu oyun içindeyken **ESC** tuşuna bastığında açılan ana kontrol panelidir. Oyun ayarlarından çıkış işlemlerine kadar tüm sistem komutları burada toplanır.
 
 ---
 
 ## 🔍 Neleri Yönetir?
 
-### 1. Çıkış Butonları
-- **Oyundan Çık**: İstemciyi tamamen kapatır.
-- **Karakter Seç**: Karakter seçim ekranına döner.
-- **Devam Et**: Menüyü kapatıp oyuna geri döner.
+### 1. Ayar Butonları
+- **`system_option_button`**: Ses ve görüntü ayarlarını açar.
+- **`game_option_button`**: Oyun içi (PVP modu, isim gösterme vb.) seçenekleri açar.
 
-### 2. Varyasyonlar
-Bu dosyanın `systemdialog_formall.py` (Nesne Market) ve `systemdialog_forportal.py` (Portal) gibi özel durumlar için modifiye edilmiş versiyonları da mevcuttur.
+### 2. Çıkış ve Geçiş Butonları
+- **`change_button`**: Karakter seçme ekranına geri döner (Karakter değiştir).
+- **`logout_button`**: Hesaptan tamamen çıkış yapıp giriş ekranına döner.
+- **`exit_button`**: Oyunu tamamen kapatır.
+
+### 3. Yardım ve İptal
+- **`help_button`**: Oyun rehberini açar.
+- **`cancel_button`**: ESC menüsünü kapatıp oyuna döner.
 
 ---
 
 ## 🛠️ Modifikasyon ve Kritik Uyarılar
 
-### ✅ Yeni Buton Ekleme:
-"Ayarlar" veya "Yardım" gibi kısayol butonları ekleyerek ESC menüsünü zenginleştirebilirsin.
+### ✅ Menüye Yeni Özellik Ekleme:
+Eğer sunucuna özel bir menü (Örn: "Nesne Market" veya "Hızlı Kanal Değiştirme") eklemek istiyorsan, bu dosyaya yeni bir buton ekleyebilir ve `root/uisystem.py` üzerinden bu butona fonksiyon atayabilirsin.
 
-### ⚠️ Buton İsimleri:
-`uiSystem.py` dosyasındaki kod bu butonların isimlerini (`name`) kullanır. İsim değişirse butonlar çalışmaz.
+### ⚠️ Dikey Yerleşim:
+Butonlar `y: 17`, `57`, `87` gibi değerlerle dikey bir liste şeklinde hizalanmıştır. Yeni bir buton eklediğinde bu aralıkları (`30` piksel fark) koruman düzenli bir görünüm sağlar.
 
 ---
 
-## 📉 systemdialog.py Yapısı
+## 📉 systemdialog.py Tasarım Hiyerarşisi
 ```mermaid
 graph TD
-    A[SystemDialog] --> B[Board: Ana Panel]
-    B --> C[LogoutButton: Çıkış]
-    B --> D[SelectCharButton: Karakter Seç]
-    B --> E[ResumeButton: Devam Et]
+    A[SystemDialog] --> B[Board: Thinboard]
+    B --> C[Help: Yardım]
+    B --> D[Options: Sistem ve Oyun Seçenekleri]
+    B --> E[ExitFlow: Karakter Değiştir, Logout, Oyundan Çık]
+    B --> F[Cancel: Kapat]
 ```
 
-**Sonuç:** `systemdialog.py`, oyuncunun "Acil Çıkış Kapısı"dır. Sade ve güvenilir bir ESC menüsü kritik öneme sahiptir.
+---
+
+**Veri Akışı:** `Oyuncu ESC` -> `root/uisystem.py` -> `systemdialog.py`.
