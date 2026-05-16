@@ -1,57 +1,44 @@
-# 🎓 Metin2 Skills: `shopdialog.py` (NPC Market Tasarımı)
+# 🎓 Metin2 Skills: `shopdialog.py` (NPC Market / Satın Alma Paneli)
 
-`shopdialog.py`, Satıcı, Silah Satıcısı gibi NPC'lerin market penceresinin nasıl görüneceğini, kaç adet eşya alabileceğini ve sekmelerin yerlerini belirleyen tasarım dosyasıdır.
+`shopdialog.py`, oyuncunun bir NPC (Örn: Satıcı, Zırh Satıcısı) ile etkileşime girdiğinde veya bir başkasının pazarını açtığında karşılaştığı satın alma penceresidir.
 
 ---
 
 ## 🔍 Neleri Yönetir?
 
 ### 1. Market Izgarası (`ItemSlot`)
-NPC'nin sattığı eşyaların dizildiği alanı yönetir. Standart olarak 5x8 (40 slot) boyutundadır.
-- **`x_count`**: Sütun sayısı (Yan yana kaç eşya).
-- **`y_count`**: Satır sayısı (Üst üste kaç eşya).
+NPC'nin sattığı eşyaların listelendiği 5x8 boyutundaki ana tablodur.
+- **`x_count: 5`, `y_count: 8`**: Toplam 40 adet eşya slotu barındırır.
 
-### 2. Satın Al ve Sat Butonları (`BuyButton` & `SellButton`)
-Oyuncunun marketten eşya alırken veya markete eşya satarken kullandığı mod değiştirme butonlarını yönetir.
+### 2. İşlem Butonları (`BuyButton`, `SellButton`)
+Oyuncunun market modunu değiştirmesini sağlar:
+- **`BuyButton`**: Satın alma moduna geçer.
+- **`SellButton`**: Envanterindeki eşyaları NPC'ye satma moduna geçer.
 
-### 3. Çoklu Sekme Desteği (`SmallTab` & `MiddleTab`)
-Eğer bir NPC birden fazla kategoride eşya satıyorsa (Örn: Market -> Potlar, Malzemeler), bu sekmeler arasında geçiş yapılmasını sağlayan butonların yerlerini belirler.
-
-### 4. Kapat Butonu (`CloseButton`)
-Pencerenin en altında bulunan ve marketi kapatmaya yarayan geniş butonun tasarımını ve konumunu yönetir.
+### 3. Sekme Yapısı (`SmallTab`, `MiddleTab`)
+Bazı gelişmiş marketlerde (Örn: Birden fazla sayfası olan marketler) sayfalar arası geçişi sağlayan buton gruplarıdır. Standart marketlerde genellikle gizlidirler.
 
 ---
 
 ## 🛠️ Modifikasyon ve Kritik Uyarılar
 
 ### ✅ Market Kapasitesini Artırma:
-Daha fazla eşya göstermek için `x_count` veya `y_count` değerlerini artırabilirsin. Ancak bunu yaparken `board` (Ana çerçeve) genişliğini ve yüksekliğini de büyütmeyi unutmamalısın.
+Eğer bir NPC'nin 40'tan fazla eşya satmasını istiyorsan, `y_count` değerini artırmalı ve pencerenin `height` değerini buna göre uzatmalısın.
 
-### ✅ Sekme Sayısını Düzenleme:
-Yeni bir kategori eklemek istersen `SmallTab4` gibi yeni bir `radio_button` tanımı ekleyerek marketi daha düzenli hale getirebilirsin.
-
-### ⚠️ Buton Üst Üste Binmesi:
-Market penceresi dar olduğu için butonlar (`Buy`, `Sell`, `Close`) bazen birbirinin üzerine binebilir. Koordinatları (`x`, `y`) milimetrik olarak ayarlamak önemlidir.
+### ⚠️ Fiyat Etiketleri:
+Bu pencere sadece eşyaları gösterir. Eşyaların fiyat bilgisi (`Yang`) üzerine gelindiğinde `root/uitooltip.py` tarafından gösterilir.
 
 ---
 
-## 🚨 Hata Ayıklama (Debug)
-
-**"Market penceresi çok küçük, eşyalar dışarı taşıyor" sorunu:**
-1.  `ItemSlot` içindeki `x_count` ve `y_count` değerleri ile `board` penceresinin `width` ve `height` değerlerinin uyumlu olup olmadığını kontrol et. Her slot 32 piksel yer kaplar.
-
----
-
-## 📉 shopdialog.py Katman Şeması
+## 📉 shopdialog.py Tasarım Hiyerarşisi
 ```mermaid
 graph TD
-    A[ShopDialog] --> B[Board: Ana Çerçeve]
-    B --> C[TitleBar: Market Başlığı]
-    B --> D[ItemSlot: 5x8 Eşya Izgarası]
-    B --> E[ControlButtons: Al / Sat / Kapat]
-    B --> F[Tabs: Kategori Sekmeleri]
+    A[ShopDialog] --> B[Board: Ana Panel]
+    B --> C[ItemSlot: 5x8 Eşya Listesi]
+    B --> D[ControlButtons: Satın Al, Sat, Kapat]
+    B --> E[TabSystem: Çoklu Sayfa Butonları]
 ```
 
 ---
 
-**Sonuç:** `shopdialog.py`, oyun içi ticaretin temelidir. Sade ve işlevsel bir market tasarımı, oyuncuların ihtiyaç duydukları eşyalara hızlıca ulaşmasını sağlar.
+**Veri Akışı:** `Server (Shop Packet)` -> `root/uishop.py` -> `shopdialog.py` -> Ekran.

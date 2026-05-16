@@ -1,62 +1,45 @@
-# 🎓 Metin2 Skills: `messengerwindow.py` (Arkadaş Listesi Tasarımı)
+# 🎓 Metin2 Skills: `messengerwindow.py` (Arkadaş Listesi / Messenger)
 
-`messengerwindow.py`, oyuncuların arkadaş listesini, lonca üyelerini ve engellenen kişileri gördüğü "Messenger" (Alt+M) panelinin tasarım dosyasıdır.
+`messengerwindow.py`, oyuncunun arkadaşlarını, lonca üyelerini ve engellediği kişileri yönettiği sosyal iletişim panelidir.
 
 ---
 
 ## 🔍 Neleri Yönetir?
 
-### 1. Liste Kaydırma (`ScrollBar`)
-Arkadaş sayısı pencere boyundan fazla olduğunda, listede aşağı-yukarı hareket etmeyi sağlayan kaydırma çubuğunun konumunu belirler.
+### 1. Liste Yapısı ve Kaydırma (`ScrollBar`)
+Arkadaşların ve lonca üyelerinin isimlerinin, seviyelerinin ve çevrimiçi (Online/Offline) durumlarının listelendiği alanı yönetir.
 
-### 2. İşlem Butonları (Alt Bar)
-Pencerenin en altında bulunan şu fonksiyonel butonları yönetir:
-- **Arkadaş Ekle (`AddFriendButton`)**
-- **Mesaj Gönder (`WhisperButton`)**
-- **Arkadaşı Sil (`RemoveButton`)**
-- **Lonca Penceresini Aç (`GuildButton`)**
+### 2. Fonksiyonel Butonlar
+Panelin alt kısmında (`vertical_align : bottom`) yer alan butonlar şunlardır:
+- **`AddFriendButton`**: Yeni bir arkadaş eklemek için kullanılır.
+- **`WhisperButton`**: Seçili kişiye fısıltı göndermeyi sağlar.
+- **`RemoveButton`**: Seçili kişiyi listeden siler.
+- **`GuildButton`**: Lonca penceresini hızlıca açmak için kullanılır.
 
-### 3. Dinamik Hizalama (`BUTTON_X_STEP`)
-Butonların yan yana düzgün bir şekilde dizilmesi için matematiksel bir adım (Örn: Her buton arası 30 piksel) kullanır. Bu sayede buton eklemek veya çıkarmak çok daha kolaydır.
-
-### 4. İpucu Metinleri (`tooltip_text`)
-Fareyle bir butonun üzerine gelindiğinde çıkan "Arkadaş Ekle" gibi açıklama kutucuklarının içeriğini ve konumunu belirler.
+### 3. İpucu Metinleri (`Tooltip`)
+Butonların üzerine gelindiğinde ne işe yaradıklarını gösteren metinlerin konumlarını (`tooltip_x`, `tooltip_y`) belirler.
 
 ---
 
 ## 🛠️ Modifikasyon ve Kritik Uyarılar
 
-### ✅ Yeni Özellik Ekleme:
-Messenger'a "Gruba Davet Et" veya "Engelle" gibi yeni bir buton eklemek istersen, `BUTTON_X_STEP` çarpımını bir artırarak yeni bir buton bloğu ekleyebilirsin.
+### ✅ Buton Aralığı (`BUTTON_X_STEP`):
+Eğer yeni bir sosyal özellik (Örn: "Takım" veya "Blok Listesi") butonu eklemek istersen, `BUTTON_X_STEP` değerini kullanarak butonları yan yana hizalayabilirsin.
 
-### ✅ Pencereyi Genişletme:
-Arkadaş listesinin daha geniş görünmesini istiyorsan `width` değerini (Örn: 170'ten 250'ye) artırmalısın. Tabii bu durumda `board` ve `titlebar` genişliklerini de güncellemen gerekir.
-
-### ⚠️ Görsel Senkronizasyonu:
-Butonların `.sub` dosyaları (messenger_add_friend_01.sub vb.) eksikse butonlar görünmez olur veya oyun hata verir.
+### ⚠️ Liste Dinamiği:
+Bu pencerenin içeriği (İsimler ve durumlar) dinamik olarak `root/uimessenger.py` tarafından doldurulur. `.py` dosyasında sadece bu verilerin nerede duracağı (Koordinatlar) tanımlıdır.
 
 ---
 
-## 🚨 Hata Ayıklama (Debug)
-
-**"Butonlar pencerenin dışına taşıyor" sorunu:**
-1.  `BUTTON_START_X_POS` değerini kontrol et. Eğer çok küçükse butonlar soldan dışarı taşar.
-2.  `horizontal_align` değerinin "center" olduğundan emin ol, bu sayede pencere büyüdüğünde butonlar ortalı kalır.
-
----
-
-## 📉 messengerwindow.py Bileşen Yapısı
+## 📉 messengerwindow.py Tasarım Hiyerarşisi
 ```mermaid
 graph TD
-    A[MessengerWindow] --> B[Board: Ana Çerçeve]
-    B --> C[ScrollBar: Kaydırma Çubuğu]
-    B --> D[ButtonContainer: İşlem Butonları]
-    D --> D1[AddFriend: Arkadaş Ekle]
-    D --> D2[Whisper: Fısılda]
-    D --> D3[Remove: Sil]
-    D --> D4[Guild: Lonca]
+    A[MessengerWindow] --> B[Board: Başlıklı Çerçeve]
+    B --> C[ScrollBar: Liste Gezintisi]
+    B --> D[ListBox: Arkadaş/Lonca Listesi]
+    B --> E[ActionButtons: Ekle, Fısılda, Sil, Lonca]
 ```
 
 ---
 
-**Sonuç:** `messengerwindow.py`, oyunun "Sosyal Rehberidir". Oyuncuların birbirleriyle iletişim kurmasını sağlayan araçların düzenini belirler.
+**Veri Akışı:** `Server (Social Packets)` -> `root/uimessenger.py` -> `messengerwindow.py` -> Ekran.

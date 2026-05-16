@@ -1,59 +1,47 @@
-# 🎓 Metin2 Skills: `minimap.py` (Mini Harita Tasarımı)
+# 🎓 Metin2 Skills: `minimap.py` (Mini Harita ve Radar)
 
-`minimap.py`, ekranın sağ üst köşesinde bulunan küçük haritanın (Minimap), yakınlaştırma butonlarının ve koordinat bilgilerinin tasarım dosyasıdır.
+`minimap.py`, ekranın sağ üst köşesinde bulunan, oyuncunun konumunu, çevredeki varlıkları (Canavarlar, NPC'ler, Metin taşları) ve harita bilgilerini gösteren radar arayüzüdür.
 
 ---
 
 ## 🔍 Neleri Yönetir?
 
-### 1. Harita Penceresi (`MiniMapWindow`)
-Oyun motorunun harita görselini (Top-down view) çizdiği ana penceredir. Genellikle 128x128 boyutlarındadır.
+### 1. Mini Harita Katmanları
+- **`OpenWindow`**: Radar açıkken görünen tüm bileşenleri (Harita, butonlar, metinler) barındırır.
+- **`MiniMapWindow`**: Asıl harita görüntüsünün (128x128) çizildiği dinamik penceredir.
+- **`OpenWindowBGI`**: Radarın etrafındaki dairesel çerçeveyi (`minimap.sub`) yönetir.
 
-### 2. Ölçekleme Butonları (`ScaleUp` & `ScaleDown`)
-Haritayı yakınlaştırıp uzaklaştırmaya yarayan '+' ve '-' butonlarının konumlarını belirler.
+### 2. Kontrol Butonları
+- **`ScaleUp / ScaleDown`**: Haritayı yakınlaştırıp uzaklaştırmayı sağlar.
+- **`MiniMapHideButton`**: Radarı kapatıp (`CloseWindow` moduna geçip) sadece küçük bir butonun kalmasını sağlar.
+- **`AtlasShowButton`**: Büyük haritayı (`M` tuşu ile açılan Atlas) tetikler.
 
-### 3. Dinamik Metin Bilgileri
-Haritanın hemen altında veya üzerinde görünen şu verileri yönetir:
-- **`ServerInfo`**: Sunucu ve Kanal (CH) adı.
-- **`PositionInfo`**: Karakterin o anki X ve Y koordinatları.
-- **`FPSBilgi`**: Oyunun saniyelik kare hızı (FPS).
-
-### 4. Atlas Butonu (`AtlasShowButton`)
-Büyük dünya haritasını (M tuşu) açan butonun konumunu ve görselini belirler.
+### 3. Bilgi Metinleri (`PositionInfo`, `ServerInfo`)
+Oyuncunun o anki koordinatlarını (X, Y), bulunduğu sunucuyu (CH), FPS değerini ve çevredeki izleyici sayısını gösteren metin alanlarıdır.
 
 ---
 
 ## 🛠️ Modifikasyon ve Kritik Uyarılar
 
-### ✅ Koordinat Yerleşimi:
-Koordinatların haritanın çok altında kaldığını düşünüyorsan, `PositionInfo` içindeki `y` değerini azaltarak onları haritanın içine veya hemen altına çekebilirsin.
+### ✅ Radar Tasarımını Değiştirme:
+Dairesel radar yerine kare bir radar yapmak istersen `minimap.sub` dosyasını ve `MiniMapWindow` boyutlarını buna göre güncellemelisin.
 
-### ✅ Yeni Bilgiler Ekleme:
-Harita altına "Ping" veya "Oyun Saati" gibi yeni bilgiler eklemek istersen, `FPSBilgi` bloğunu kopyalayıp `y` koordinatını artırarak yeni bir metin alanı oluşturabilirsin.
-
-### ⚠️ Görünürlük Durumları:
-Bu dosyada iki ana grup vardır: `OpenWindow` (Harita açıkken) ve `CloseWindow` (Harita gizliyken). Eğer haritayı gizlediğinde butonun yerini değiştirmek istersen `CloseWindow` içindeki koordinatlara bakmalısın.
+### ⚠️ Koordinat Senkronizasyonu:
+`PositionInfo` metni, `root/uiminimap.py` tarafından her karede (onUpdate) güncellenir. Bu metnin rengini veya yazı tipini değiştirmek istiyorsan buradaki `text` bloğuna müdahale edebilirsin.
 
 ---
 
-## 🚨 Hata Ayıklama (Debug)
-
-**"Harita üzerindeki butonlara tıklayamıyorum" sorunu:**
-1.  `MiniMapWindow` (Harita alanı) bazen diğer butonların üzerine biner. Butonların koordinatlarının harita alanıyla çakışmadığından emin ol.
-2.  Buton görsellerinin (`.sub`) yolunun doğru olduğunu kontrol et.
-
----
-
-## 📉 minimap.py Katman Yapısı
+## 📉 minimap.py Tasarım Hiyerarşisi
 ```mermaid
 graph TD
-    A[MiniMap: Ana Konteynır] --> B[OpenWindow: Harita Görünümü]
-    B --> B1[MiniMapWindow: Render Alanı]
-    B --> B2[Buttons: Zoom / Kapat / Atlas]
-    B --> B3[Texts: Koordinat / Server / FPS]
-    A --> C[CloseWindow: Gizli Harita Butonu]
+    A[MiniMap] --> B[OpenWindow: Aktif Radar]
+    B --> B1[MiniMapWindow: Harita Görüntüsü]
+    B --> B2[Controls: Zoom ve Kapatma]
+    B --> B3[InfoTexts: Koordinat, FPS, Sunucu]
+    A --> C[CloseWindow: Gizli Mod]
+    C --> C1[ShowButton: Radarı Geri Aç]
 ```
 
 ---
 
-**Sonuç:** `minimap.py`, oyuncunun oyun dünyasındaki "Gözüdür". Doğru bir minimap yerleşimi, navigasyonu ve oyun konforunu artırır.
+**Veri Akışı:** `Oyun Motoru (Radar Verisi)` -> `root/uiminimap.py` -> `minimap.py` -> Ekran.

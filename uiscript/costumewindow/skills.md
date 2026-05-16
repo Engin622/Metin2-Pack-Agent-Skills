@@ -1,57 +1,41 @@
-# 🎓 Metin2 Skills: `costumewindow.py` (Kostüm Paneli Tasarımı)
+# 🎓 Metin2 Skills: `costumewindow.py` (Kostüm Sistemi)
 
-`costumewindow.py`, envanterin yanında açılan ve Kostüm Zırh, Kostüm Saç ve Kostüm Silah slotlarını barındıran küçük ek panelin tasarım dosyasıdır.
+`costumewindow.py`, envanterin yanında açılan ve karakterin giydiği kostüm, saç stili ve kostüm silahı gibi görsellik odaklı ekipmanları yöneten penceredir.
 
 ---
 
 ## 🔍 Neleri Yönetir?
 
 ### 1. Kostüm Slotları (`CostumeSlot`)
-Üç adet özel slot sunar:
-- **`COSTUME_START_INDEX+0`**: Kostüm Zırh (Görsel Zırh). Karakterin dış görünüşünü değiştirir ama gerçek zırhın bonuslarını etkilemez.
-- **`COSTUME_START_INDEX+1`**: Kostüm Saç (Peruğ). Saç stilini değiştirir.
-- **`COSTUME_START_INDEX+2`**: Kostüm Silah. Silahın görselini değiştirir.
+Ana envanterden bağımsız olarak 3 ana slot barındırır:
+- **`COSTUME_START_INDEX+0`**: Kostüm zırhı (Body).
+- **`COSTUME_START_INDEX+1`**: Kostüm saçı (Hair).
+- **`COSTUME_START_INDEX+2`**: Kostüm silahı veya binek (Server yapısına göre değişir).
 
-### 2. Arka Plan Görseli (`Costume_Base`)
-Kostüm slotlarının arkasındaki tematik resmi (`costume_bg.jpg`) yönetir. Bu, envanter arka planından farklı bir tasarıma sahiptir.
-
-### 3. Dinamik Başlangıç İndeksi (`COSTUME_START_INDEX`)
-Slot numaraları `item.COSTUME_SLOT_START` sabitinden otomatik olarak çekilir. Bu sayede sunucu tarafında slot numaraları değişirse, bu dosya da otomatik olarak güncellenir.
+### 2. Arka Plan Görseli (`costume_bg.jpg`)
+Slotların arkasında yer alan ve genellikle şık bir kostüm figürü içeren tematik arka plan görselidir.
 
 ---
 
 ## 🛠️ Modifikasyon ve Kritik Uyarılar
 
-### ✅ Yeni Kostüm Slotu Ekleme (Örn: Kanat):
-Eğer sunucun "Kostüm Kanat" destekliyorsa, `slot` listesine yeni bir `{"index": COSTUME_START_INDEX+3, ...}` satırı ekleyerek görsel alanı oluşturabilirsin. Tabii pencere boyutunu da (`height`) artırman gerekir.
+### ✅ Yeni Kostüm Slotu Ekleme:
+Eğer sunucuna "Kuşak" (Sash) veya "Pet" gibi sistemler eklemek istiyorsan, bu pencereyi genişleterek yeni slotlar tanımlayabilirsin. `COSTUME_START_INDEX` değerini `item.py` içindeki tanımlara göre artırmalısın.
 
-### ✅ Konum Ayarlama:
-Pencere varsayılan olarak envanterin soluna (`SCREEN_WIDTH - 175 - 140`) yapışır. Bu sayede oyuncu ikisini birlikte görür.
-
-### ⚠️ item Modülü Bağımlılığı:
-Bu dosya `import item` ile doğrudan oyun motoruna bağlıdır. `item.COSTUME_SLOT_START` sabiti motorun binary'sinde tanımlıdır; Python tarafından değiştirilemez.
+### ⚠️ Hizalama:
+Bu pencere genellikle envanterin solunda açılacak şekilde (`SCREEN_WIDTH - 175 - 140`) konumlandırılmıştır. Envanterin yerini değiştirirsen bu pencerenin de koordinatlarını güncellemelisin.
 
 ---
 
-## 🚨 Hata Ayıklama (Debug)
-
-**"Kostüm penceresi açılıyor ama slotlar boş görünüyor" sorunu:**
-1.  `costume_bg.jpg` dosyasının belirtilen yolda mevcut olduğunu kontrol et.
-2.  Slot koordinatlarının (`x`, `y`) arka plan görselinin boyutlarıyla uyumlu olduğundan emin ol.
-
----
-
-## 📉 costumewindow.py Slot Düzeni
+## 📉 costumewindow.py Tasarım Hiyerarşisi
 ```mermaid
 graph TD
-    A[CostumeWindow: 140x180] --> B[Board: Ana Çerçeve]
-    B --> C[TitleBar: Kostüm Başlığı]
-    B --> D[Costume_Base: Arka Plan Görseli]
-    D --> E[Slot 0: Kostüm Zırh - 32x64]
-    D --> F[Slot 1: Kostüm Saç - 32x32]
-    D --> G[Slot 2: Kostüm Silah - 32x32]
+    A[CostumeWindow] --> B[Board: Küçük Panel]
+    B --> C[TitleBar: "Kostüm"]
+    B --> D[Costume_Base: Arka Plan Resmi]
+    D --> E[CostumeSlot: Kostüm, Saç, Silah Slotları]
 ```
 
 ---
 
-**Sonuç:** `costumewindow.py`, oyuncunun "Giyinme Odası"dır. Gerçek eşyaları etkilemeden karakterin dış görünüşünü değiştirmeyi sağlar.
+**Veri Akışı:** `Server (Costume Data)` -> `root/uiinventory.py` -> `costumewindow.py`.

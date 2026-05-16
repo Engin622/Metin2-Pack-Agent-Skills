@@ -1,56 +1,40 @@
-# 🎓 Metin2 Skills: `safeboxwindow.py` (Depo Tasarımı)
+# 🎓 Metin2 Skills: `safeboxwindow.py` (Depo / Safebox)
 
-`safeboxwindow.py`, oyuncuların eşyalarını sakladığı "Depo" ve "Nesne Market Deposu" arayüzlerinin temel görsel yapısını belirleyen tasarım dosyasıdır.
+`safeboxwindow.py`, oyuncunun köy gardiyanı veya depo sorumlusu üzerinden açtığı, eşyalarını sakladığı güvenli depolama alanının ana çerçevesidir.
 
 ---
 
 ## 🔍 Neleri Yönetir?
 
-### 1. Ana Pencere Yapısı (`SafeboxWindow`)
-Deponun ekran üzerindeki varsayılan konumunu ve 176x250 piksellik standart boyutlarını yönetir.
+### 1. Ana Kontroller
+Bu dosya sadece deponun dış kasasını ve temel butonlarını içerir:
+- **`ChangePasswordButton`**: Depo şifresini değiştirmek için kullanılan butondur.
+- **`ExitButton`**: Depoyu kapatır.
 
-### 2. Şifre Değiştirme Butonu (`ChangePasswordButton`)
-Depo güvenliği için kullanılan "Şifre Değiştir" penceresini açan butonun yerleşimini ve görselini belirler.
-
-### 3. Kapat Butonu (`ExitButton`)
-Depo ile etkileşimi sonlandıran ve pencereyi kapatan alt butonun koordinatlarını yönetir.
-
-### 4. Başlık Çubuğu (`TitleBar`)
-Deponun en üstünde bulunan ve "Depo" yazan sarı renkli başlık alanını yönetir.
+### 2. Dinamik İçerik (Slotlar)
+Pencerenin içinde asıl eşyaların durduğu slotlar (Grid Table), deponun kaç oda (Sayfa) olduğuna bağlı olarak `root/uisafebox.py` tarafından çalışma anında (Runtime) oluşturulur ve pencereye dahil edilir.
 
 ---
 
 ## 🛠️ Modifikasyon ve Kritik Uyarılar
 
-### ✅ Depo Sayfalarını Artırma:
-Eğer sunucun birden fazla depo sayfasını destekliyorsa, bu dosyaya yeni "Sayfa 1", "Sayfa 2" gibi `radio_button` bileşenleri ekleyerek sayfalar arası geçişi kolaylaştırabilirsin.
+### ✅ Depo Boyutunu Büyütme:
+Eğer daha büyük bir depo tasarımı (Örn: 9x15 slot) istiyorsan, `safeboxwindow.py` dosyasındaki `width` ve `height` değerlerini artırmalı ve `root` tarafındaki slot oluşturma döngüsünü güncellemelisin.
 
-### ✅ Boyut Düzenleme:
-Depo slotları genellikle `uiSafebox.py` tarafından kodla eklenir. Ancak bu dosyadaki `height` değerini artırarak daha büyük ve ferah bir depo ekranı oluşturabilirsin.
-
-### ⚠️ Buton Senkronizasyonu:
-`ChangePasswordButton` ismini değiştirirsen, `uiSafebox.py` dosyası bu butonu bulamaz ve şifre değiştirme işlevi bozulur.
+### ⚠️ Şifre Güvenliği:
+Depo açılmadan önce oyuncudan şifre istenir. Bu şifre doğrulandıktan sonra bu pencere ve içindeki slotlar görünür hale gelir.
 
 ---
 
-## 🚨 Hata Ayıklama (Debug)
-
-**"Depoyu açtığımda sadece başlık görünüyor, butonlar yok" sorunu:**
-1.  `board` içindeki `children` listesinde parantezlerin doğru kapandığından emin ol.
-2.  Butonların `y` koordinatlarını kontrol et; `vertical_align : bottom` kullanıldığı için `y` değeri pencerenin altından yukarı doğru sayılır.
-
----
-
-## 📉 safeboxwindow.py Yapısı
+## 📉 safeboxwindow.py Tasarım Hiyerarşisi
 ```mermaid
 graph TD
-    A[SafeboxWindow] --> B[Board: Ana Panel]
-    B --> C[TitleBar: Depo Başlığı]
-    B --> D[ChangePasswordButton: Şifre Değiştir]
-    B --> E[ExitButton: Kapat]
-    B --> F[ItemSlots: Kodla Eklenen Slotlar]
+    A[SafeboxWindow] --> B[Board: Ana Kasa]
+    B --> C[TitleBar: "Depo"]
+    B --> D[ControlButtons: Şifre Değiştir, Kapat]
+    B --> E[DynamicGrid: Eşya Slotları - Kodla Oluşturulur]
 ```
 
 ---
 
-**Sonuç:** `safeboxwindow.py`, oyuncunun "Bankasıdır". Güvenli ve anlaşılır bir depo tasarımı, eşya yönetimini kolaylaştırır.
+**Veri Akışı:** `Server (Safebox Items)` -> `root/uisafebox.py` -> `safeboxwindow.py` -> Ekran.

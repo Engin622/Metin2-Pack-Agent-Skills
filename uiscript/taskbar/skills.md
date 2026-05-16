@@ -1,57 +1,45 @@
-# 🎓 Metin2 Skills: `taskbar.py` (Görev Çubuğu Tasarımı)
+# 🎓 Metin2 Skills: `taskbar.py` (Görev Çubuğu - HUD)
 
-`taskbar.py`, ekranın en altında bulunan ve HP/SP barlarını, hızlı erişim slotlarını (1-4, F1-F4) ve ana menü butonlarını barındıran "Görev Çubuğu"nun tasarım dosyasıdır.
+`taskbar.py`, ekranın en altında yer alan ve oyuncunun can (HP), enerji (SP), tecrübe (EXP) durumlarını izlediği, yetenek kısayollarını kullandığı ve ana menülere ulaştığı merkezi kontrol çubuğudur.
 
 ---
 
 ## 🔍 Neleri Yönetir?
 
-### 1. Dinamik Genişlik (`expanded_image`)
-Oyun penceresi ne kadar geniş olursa olsun (`SCREEN_WIDTH`), alt barın arka planının ekranı tam kaplamasını sağlayan esnek yapıyı yönetir.
+### 1. Durum Göstergeleri (Gauges)
+- **`HPGauge` / `SPGauge`**: Can ve mana seviyelerini gösteren animasyonlu (`ani_image`) çubuklardır. `01.tga`'dan `07.tga`'ya kadar olan karelerle su dalgalanması efekti verilir.
+- **`EXP_Gauge_Board`**: Dört küçük tüpten (`EXPGauge_01-04`) oluşan tecrübe göstergesidir. Her tüp %25 tecrübeyi temsil eder.
 
-### 2. Yaşam ve Enerji Barları (`HPGauge` & `SPGauge`)
-Can (HP) ve Mana (SP) değerlerini gösteren renkli barların konumlarını ve dolma animasyonlarını (`ani_image`) belirler.
+### 2. Kısayol Slotları (`QuickBar`)
+- **`quick_slot_1` (1, 2, 3, 4)** ve **`quick_slot_2` (F1, F2, F3, F4)**: Oyuncunun iksir veya beceri sürüklediği 8 adet ana kısayol slotudur.
+- **`QuickPageUp/Down`**: Kısayol sayfaları (1, 2, 3, 4) arasında geçiş yapmayı sağlar.
 
-### 3. Hızlı Erişim Slotları (`QuickSlot`)
-Oyuncuların iksir veya yetenek sürükleyip bıraktığı 1, 2, 3, 4 ve F1, F2, F3, F4 tuşlarına bağlı karelerin yerlerini belirler.
-
-### 4. Tecrübe Küreleri (`ExpGauge`)
-Ekranın sol altında bulunan ve karakter seviye atladıkça dolan 4 adet tecrübe (EXP) küresinin koordinatlarını ve görsellerini yönetir.
+### 3. Sistem Butonları
+Ekranın sağ en köşesinde bulunan hızlı erişim butonlarıdır:
+- **Karakter (C)**, **Envanter (I)**, **Messenger (L)**, **Sistem (ESC)**.
 
 ---
 
 ## 🛠️ Modifikasyon ve Kritik Uyarılar
 
-### ✅ Yeni Hızlı Slotlar Ekleme:
-Standart 4 slot yerine 8 veya 12 slotluk geniş bir taskbar yapmak istiyorsan, `QuickSlot` genişliğini artırmalı ve yeni slot koordinatları eklemelisin.
+### ✅ Yeni Buton Ekleme:
+Taskbar'a yeni bir özellik (Örn: "Otomatik Av") butonu eklemek istersen, `CharacterButton` koordinatlarını referans alarak yeni bir buton bloğu ekleyebilirsin. `Y_ADD_POSITION` değişkeni ekran çözünürlüğüne göre dikey hizalamayı korur.
 
-### ✅ Gauge Renk Değişimi:
-Can barının kırmızı yerine yeşil, Mana barının mavi yerine mor görünmesini istiyorsan, `images` listesindeki `.sub` dosyalarını değiştirebilirsin.
-
-### ⚠️ Koordinat Senkronizasyonu:
-Taskbar'ın yüksekliği (`height : 37`) değişirse, üzerindeki tüm objelerin (HP barı, butonlar vb.) `y` koordinatlarını da tek tek yukarı veya aşağı kaydırman gerekir.
+### ⚠️ Görsel Kaynaklar:
+Taskbar görselleri (`exp_gauge.sub`, `mouse_button_move.sub` vb.) `pack/ETC` içindeki `taskbar/` klasöründen çekilir. Bu görselleri değiştirirken şeffaflık (Alpha) ayarlarına dikkat edilmelidir.
 
 ---
 
-## 🚨 Hata Ayıklama (Debug)
-
-**"Taskbar ekranın ortasında duruyor" sorunu:**
-1.  Ana pencerenin `y` koordinatını kontrol et. `SCREEN_HEIGHT - 37` şeklinde olmalıdır. Eğer sadece bir sayı yazıldıysa (Örn: 600), farklı çözünürlüklerde taskbar havada kalabilir.
-
----
-
-## 📉 taskbar.py Görsel Katmanları
+## 📉 taskbar.py Tasarım Hiyerarşisi
 ```mermaid
-graph LR
-    A[TaskBar: Ana Pencere] --> B[Base_Board: Arka Plan Deseni]
-    B --> C[Gauge_Board: HP/SP Çerçevesi]
-    C --> C1[HPGauge: Can Barı]
-    C --> C2[SPGauge: Mana Barı]
-    B --> D[QuickSlot: Hızlı Erişim Kareleri]
-    B --> E[ExpGauge: Tecrübe Küreleri]
-    B --> F[MenuButtons: Envanter/Sistem/Lonca Butonları]
+graph TD
+    A[TaskBar: Tam Genişlik] --> B[Gauge_Board: HP, SP, ST Göstergeleri]
+    A --> C[EXP_Gauge: 4 Tüplü Tecrübe Barı]
+    A --> D[QuickBar: 1-4 ve F1-F4 Slotları]
+    A --> E[SystemButtons: C, I, L, ESC Menüleri]
+    A --> F[MouseButtons: Fare Modu Değiştiriciler]
 ```
 
 ---
 
-**Sonuç:** `taskbar.py`, oyuncunun "Hayatta Kalma Göstergesidir". Her an göz önünde olan bu panelin tasarımı, oyunun akıcılığı için çok önemlidir.
+**Veri Akışı:** `root/uitaskbar.py` -> `taskbar.py` -> Ekran.

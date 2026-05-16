@@ -1,59 +1,46 @@
-# 🎓 Metin2 Skills: `inventorywindow.py` (Envanter Tasarımı)
+# 🎓 Metin2 Skills: `inventorywindow.py` (Envanter Sistemi)
 
-`inventorywindow.py`, oyuncunun çantasını (Envanter) ve üzerindeki ekipman slotlarını (Zırh, Silah vb.) ekranda nereye koyacağını ve nasıl görüneceğini belirleyen "Mimari Plan" dosyasıdır.
+`inventorywindow.py`, oyuncunun sahip olduğu eşyaları, giydiği ekipmanları ve parasını yönettiği ana arayüz dosyasıdır. Oyunun en çok kullanılan ve en kompleks pencerelerinden biridir.
 
 ---
 
 ## 🔍 Neleri Yönetir?
 
-### 1. Pencere Konumu ve Boyutu (`window`)
-Envanterin ekranın sağ tarafında (`SCREEN_WIDTH - 176`) nerede duracağını ve toplam genişlik/yükseklik değerlerini belirler.
+### 1. Ekipman Bölümü (`EquipmentSlot`)
+Karakterin üzerine giydiği zırh, kılıç, kask gibi eşyaların yerleştiği özel slotlardır.
+- **`index`**: Her slotun (`EQUIPMENT_START_INDEX + n`) kendine has bir kimlik numarası vardır.
+- **`equipment_base.sub`**: Ekipman slotlarının arka planındaki insan figürlü görseli yönetir.
 
-### 2. Ekipman Slotları (`EquipmentSlot`)
-Kask, Zırh, Silah, Kalkan gibi eşyaların envanterin üst kısmında hangi koordinatlarda duracağını tek tek belirler.
-- **`index`**: Bu değer `EQUIPMENT_START_INDEX` (90) ile başlar. Her numara farklı bir vücut bölgesini temsil eder.
+### 2. Sayfalı Envanter Yapısı (`Inventory_Tab`)
+Metin2 envanteri genellikle iki veya daha fazla sayfadan oluşur.
+- **`ItemSlot` (Grid Table)**: 5x9 boyutundaki ana eşya deposudur. `x_count: 5` ve `y_count: 9` değerleri toplam 45 slotluk bir sayfa oluşturur.
 
-### 3. Görsel Temalar (`image`)
-Envanterin arka planını ve slotların etrafındaki çerçeveleri belirleyen `.sub` dosyalarını tanımlar.
-- **Örnek:** `equipment_base.sub` (Zırhların arkasındaki gri gölge).
-
-### 4. Sayfa Sekmeleri (`radio_button`)
-Envanter 1 ve Envanter 2 sayfaları arasında geçiş yapmayı sağlayan butonların konumlarını ve görsellerini yönetir.
+### 3. Yang Göstergesi (`Money_Slot`)
+Karakterin o anki parasını (`Money`) gösteren ve yanındaki altın ikonuyla (`money_icon.sub`) desteklenen alandır.
 
 ---
 
 ## 🛠️ Modifikasyon ve Kritik Uyarılar
 
-### ✅ Yeni Buton Ekleme:
-Envanterin altına "Hızlı Sat" veya "Depo Aç" gibi bir buton eklemek istersen, `children` listesinin en sonuna yeni bir `button` bloğu eklemelisin.
+### ✅ Envanter Sayfası Artırma:
+Eğer envanteri 4 sayfaya çıkarmak istiyorsan, buraya `Inventory_Tab_03` ve `04` butonlarını eklemeli ve `root/uiinventory.py` tarafında bu butonların tetikleyeceği sayfa geçişlerini tanımlamalısın.
 
-### ✅ Slot Yerlerini Değiştirme:
-Eğer zırhın veya kalkanın yerini beğenmiyorsan, `EquipmentSlot` içindeki `x` ve `y` değerlerini değiştirerek onları milimetrik olarak kaydırabilirsin.
-
-### ⚠️ Koordinat Taşmaları:
-Eğer bir butonun koordinatını ana pencerenin (`width` / `height`) dışına yazarsan, buton ekranda görünmez veya tıklanamaz olur.
-
----
-
-## 🚨 Hata Ayıklama (Debug)
-
-**"Envanteri açıyorum ama bomboş görünüyor" sorunu:**
-1.  `inventorywindow.py` içinde bir parantez hatası `( , )` veya virgül hatası olup olmadığını kontrol et. Bu dosya bir Python sözlüğü (Dictionary) olduğu için yazım hataları tüm arayüzü bozar.
-2.  `image` yollarının `d:/ymir work/...` şeklinde doğru başladığından emin ol.
+### ⚠️ Slot Çakışması:
+Slotların `x` ve `y` koordinatları birbirinin üzerine binmemelidir. Aksi halde eşyalar üst üste biner ve sürükle-bırak işlemleri hatalı çalışır.
 
 ---
 
 ## 📉 inventorywindow.py Tasarım Hiyerarşisi
 ```mermaid
 graph TD
-    A[InventoryWindow: Ana Pencere] --> B[board: Arka Panel]
-    B --> C[TitleBar: Başlık Çubuğu]
-    B --> D[Equipment_Base: Ekipman Görseli]
-    D --> E[EquipmentSlot: Zırh/Silah Yuvaları]
-    B --> F[Inventory_Tab: Sayfa Butonları]
-    B --> G[ItemSlot: Çanta İçindeki Kareler]
+    A[InventoryWindow] --> B[Board: Ana Kasa]
+    B --> C[Equipment_Base: Giyili Eşyalar]
+    C --> C1[EquipmentSlot: Kılıç, Zırh vb.]
+    B --> D[InventoryTabs: Sayfa 1/2 Seçimi]
+    B --> E[ItemSlot: 5x9 Eşya Izgarası]
+    B --> F[Money_Slot: Yang Bilgisi]
 ```
 
 ---
 
-**Sonuç:** `inventorywindow.py`, oyuncunun en çok baktığı ekranın "Dizaynıdır". Buradaki düzenlemeler kullanıcı deneyimini (UX) doğrudan etkiler.
+**Veri Akışı:** `Server (Item Data)` -> `root/uiinventory.py` -> `inventorywindow.py` -> Ekran.

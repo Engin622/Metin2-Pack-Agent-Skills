@@ -1,56 +1,43 @@
-# 🎓 Metin2 Skills: `refinedialog.py` (Eşya Yükseltme Tasarımı)
+# 🎓 Metin2 Skills: `refinedialog.py` (Eşya Yükseltme / Demirci)
 
-`refinedialog.py`, Demirci veya Nesne Yükseltme kağıtları kullanıldığında açılan, gerekli malzemelerin ve başarı şansının gösterildiği "Yükseltme" (Plus basma) penceresinin tasarım dosyasıdır.
+`refinedialog.py`, oyuncunun bir eşyayı artı basmak (Yükseltmek) istediğinde açılan, gereken malzemeleri ve başarı şansını gösteren onay penceresidir.
 
 ---
 
 ## 🔍 Neleri Yönetir?
 
-### 1. Başarı Şansı (`SuccessPercentage`)
-Eşyanın bir sonraki seviyeye geçme ihtimalini (Örn: %80) gösteren metin alanının konumunu yönetir.
+### 1. Dinamik Boyutlandırma
+Bu dosyadaki `width` ve `height` değerleri `0` olarak ayarlanmıştır. Bunun nedeni, pencerenin boyutunun o anki yükseltme işlemi için gereken malzeme sayısına göre `root/uirefine.py` tarafından anlık olarak hesaplanmasıdır.
 
-### 2. Yükseltme Maliyeti (`Cost`)
-İşlem için gereken Yang miktarını gösteren metin alanını belirler.
+### 2. Bilgi Metinleri
+- **`SuccessPercentage`**: Eşyanın yükseltilme başarı şansını (Örn: %50) gösterir.
+- **`Cost`**: İşlem için gereken Yang miktarını barındırır.
 
-### 3. Kabul ve İptal Butonları (`Accept` & `Cancel`)
-Yükseltme işlemini başlatan veya pencereyi kapatan butonların yerleşimini yönetir.
-
-### 4. Dinamik Boyutlandırma (`width: 0`, `height: 0`)
-Bu pencerenin boyutu sabit değildir. `uiRefine.py` dosyası, yükseltme için kaç adet malzeme (1-5 arası) gerektiğini hesaplar ve pencereyi ona göre otomatik olarak büyütür/küçültür.
+### 3. Kontrol Butonları
+İşlemi onaylar (`OK`) veya iptal eder (`CANCEL`).
 
 ---
 
 ## 🛠️ Modifikasyon ve Kritik Uyarılar
 
-### ✅ Şans Yazısını Vurgulama:
-Başarı şansının daha dikkat çekici olması için bu dosyadaki `y` koordinatlarını değiştirebilir veya `uiRefine.py` üzerinden bu metnin rengini dinamik hale getirebilirsin.
+### ✅ Şans Göstergesini Renklendirme:
+Eğer başarı şansı çok düşükse (Örn: %10), bu metnin rengini kırmızı yapmak oyuncu için iyi bir uyarı olabilir. Bu işlem `root/uirefine.py` içindeki `UpdateDialog` fonksiyonunda yapılır.
 
-### ✅ Malzeme Slotlarının Yerleşimi:
-Malzemelerin dizileceği slotlar bu dosyada görünmez; çünkü onlar Python kodu tarafından çalışma anında (runtime) oluşturulur. Ancak ana çerçevenin (`Board`) stili buradan değiştirilebilir.
-
-### ⚠️ Başlık Rengi (`color: "red"`):
-Başlık çubuğunun rengini değiştirerek yükseltme penceresine daha agresif veya daha sakin bir görünüm verebilirsin.
+### ⚠️ Malzeme Slotları:
+Gereken malzemelerin ikonları (İstiridye, İnci vb.) bu `.py` dosyasında tanımlı değildir. Bu slotlar, eşyanın `refine_proto`'daki verilerine göre kod tarafında (`root`) dinamik olarak oluşturulur ve pencereye eklenir.
 
 ---
 
-## 🚨 Hata Ayıklama (Debug)
-
-**"Yükseltme penceresi çok küçük açılıyor, malzemeler görünmüyor" sorunu:**
-1.  Bu genellikle bu `.py` dosyasından değil, `uiRefine.py` içindeki boyut hesaplama formülünden kaynaklanır. Ancak `Board` genişliğinin `titlebar` genişliğinden küçük olmadığından emin olmalısın.
-
----
-
-## 📉 refinedialog.py Katman Şeması
+## 📉 refinedialog.py Tasarım Hiyerarşisi
 ```mermaid
 graph TD
-    A[RefineDialog] --> B[Board: Dinamik Boyutlu Çerçeve]
-    B --> C[TitleBar: Yükseltme Başlığı]
-    B --> D[SuccessPercentage: Başarı Oranı Metni]
-    B --> E[Cost: Gereken Para Metni]
-    B --> F[Materials: Dinamik Eklenen Slotlar]
-    B --> G[ActionButtons: Tamam / İptal]
+    A[RefineDialog: Dinamik Boyut] --> B[Board: Ana Panel]
+    B --> C[TitleBar: "Eşya Yükseltme"]
+    B --> D[InfoArea: Şans ve Ücret]
+    B --> E[DynamicSlots: Gereken Malzemeler - Kodla Eklenir]
+    B --> F[Accept / Cancel Butonları]
 ```
 
 ---
 
-**Sonuç:** `refinedialog.py`, oyunun "Risk ve Ödül" ekranıdır. Oyuncuların en heyecanlı (veya üzüntülü) anlarını yaşadıkları bu ekranın netliği çok önemlidir.
+**Veri Akışı:** `Server (Refine Info)` -> `root/uirefine.py` -> `refinedialog.py` -> Ekran.

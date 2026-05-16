@@ -1,63 +1,49 @@
-# 🎓 Metin2 Skills: `exchangedialog.py` (Ticaret Penceresi Tasarımı)
+# 🎓 Metin2 Skills: `exchangedialog.py` (Ticaret Penceresi)
 
-`exchangedialog.py`, iki oyuncu arasında eşya ve para transferi yapılırken açılan "Ticaret" ekranının görsel ve teknik yerleşim planıdır.
+`exchangedialog.py`, iki oyuncu arasında eşya ve Yang alışverişi yapılmasını sağlayan karşılıklı ticaret arayüzüdür. Pencere, simetrik iki ana bölümden (`Owner` ve `Target`) oluşur.
 
 ---
 
 ## 🔍 Neleri Yönetir?
 
-### 1. İki Taraflı Yapı (`Owner` & `Target`)
-Pencereyi tam ortadan ikiye böler:
-- **`Owner`**: Sizin koyduğunuz eşyalar ve para.
-- **`Target`**: Karşı tarafın koyduğu eşyalar ve para.
+### 1. Kendi Bölümün (`Owner`)
+- **`Owner_Slot`**: Ticaret masasına koyduğun eşyaların göründüğü 4x3 boyutundaki ızgaradır.
+- **`Owner_Money`**: Karşı tarafa vermek istediğin Yang miktarını belirlediğin alandır.
+- **`Owner_Accept_Button`**: Ticareti onayladığını belirten butondur.
 
-### 2. Eşya Izgarası (`grid_table`)
-Standart olarak 4x3 (12 slot) boyutunda olan eşya koyma alanlarını yönetir. Her bir kare 32x32 piksel boyutundadır.
+### 2. Rakip Bölümü (`Target`)
+- **`Target_Slot`**: Karşı oyuncunun masaya koyduğu eşyaları izlediğin alandır.
+- **`Target_Accept_Light`**: Karşı oyuncunun ticareti onaylayıp onaylamadığını gösteren görsel işarettir (`accept_button_on.sub`).
 
-### 3. Kabul Işıkları (`Accept_Light`)
-Oyuncular "Kabul" butonuna bastığında yanan (genellikle kırmızıdan yeşile dönen) onay göstergelerinin konumlarını belirler.
-
-### 4. Para Giriş Alanları (`Owner_Money`)
-Ticarette verilecek Yang miktarının yazıldığı kutucukların ve üzerindeki metinlerin yerleşimini yönetir.
+### 3. Ayırıcı Çizgi (`Middle_Bar`)
+İki tarafın masasını birbirinden ayıran görsel elementtir.
 
 ---
 
 ## 🛠️ Modifikasyon ve Kritik Uyarılar
 
-### ✅ Ticaret Kapasitesini Artırma:
-Eğer aynı anda daha fazla eşya takas etmek istiyorsan, `grid_table` içindeki `y_count` değerini artırarak (Örn: 3'ten 6'ya) slot sayısını 24'e çıkarabilirsin. (Tabii pencere boyutu olan `height` değerini de artırman gerekir).
+### ✅ Slot Sayısını Artırma:
+Eğer ticarette aynı anda daha fazla eşya (Örn: 4x6) takas edilmesini istiyorsan, `x_count` veya `y_count` değerlerini artırmalı ve pencere `height` değerini buna göre büyütmelisin.
 
-### ✅ Buton Tasarımları:
-"Kabul" veya "İptal" butonlarını daha büyük veya farklı renklerde yapmak için `default_image` yollarını güncelleyebilirsin.
-
-### ⚠️ Senkronizasyon:
-Bu dosyadaki slot sayısı, sunucu tarafındaki ticaret sistemi (`exchange.cpp`) ile uyumlu olmalıdır. Sadece görseli artırmak tek başına yeterli olmayabilir.
+### ⚠️ Kabul Işığı (Accept Light):
+Ticaret güvenliği için `Target_Accept_Light` çok kritiktir. Karşı taraf onay verdiğinde bu ışık yanar. Eğer bu görsel doğru tanımlanmazsa, oyuncu karşı tarafın onayladığını göremez.
 
 ---
 
-## 🚨 Hata Ayıklama (Debug)
-
-**"Karşı tarafın koyduğu eşyaları göremiyorum" sorunu:**
-1.  `Target_Slot` içindeki koordinatların `Owner_Slot` ile çakışmadığından emin ol.
-2.  `Middle_Bar` (Orta çizgi) görselinin pencereleri tam ayırdığını kontrol et.
-
----
-
-## 📉 exchangedialog.py Yerleşim Planı
+## 📉 exchangedialog.py Tasarım Hiyerarşisi
 ```mermaid
 graph TD
     A[ExchangeDialog] --> B[Board: Ana Çerçeve]
-    B --> C[TitleBar: Ticaret Başlığı]
-    B --> D[Middle_Bar: Orta Bölme]
-    B --> E[Owner: Benim Alanım]
-    E --> E1[Owner_Slot: 4x3 Grid]
-    E --> E2[Owner_Money: Para Alanı]
-    E --> E3[Accept_Button: Onay Butonu]
-    B --> F[Target: Karşı Tarafın Alanı]
-    F --> F1[Target_Slot: 4x3 Grid]
-    F --> F2[Target_Money: Para Alanı]
+    B --> C[Owner: Senin Masan]
+    C --> C1[OwnerSlot: 4x3 Grid]
+    C --> C2[OwnerMoney: Yang]
+    C --> C3[AcceptButton: Onayla]
+    B --> D[Target: Rakip Masası]
+    D --> D1[TargetSlot: 4x3 Grid]
+    D --> D2[TargetMoney: Yang]
+    D --> D3[AcceptLight: Onay Işığı]
 ```
 
 ---
 
-**Sonuç:** `exchangedialog.py`, oyun ekonomisinin "Güvenlik Kapısıdır". Her iki tarafın da neyi takas ettiğini net bir şekilde görmesini sağlayan bir düzen sunar.
+**Veri Akışı:** `Server (Exchange Packets)` -> `root/uiexchange.py` -> `exchangedialog.py` -> Ekran.

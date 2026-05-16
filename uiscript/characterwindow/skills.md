@@ -1,58 +1,47 @@
-# 🎓 Metin2 Skills: `characterwindow.py` (Karakter Bilgi Ekranı Tasarımı)
+# 🎓 Metin2 Skills: `characterwindow.py` (Karakter Bilgi Paneli)
 
-`characterwindow.py`, oyuncunun statülerini (HP, SP, STR vb.), becerilerini (Skill), duygularını (Emotion) ve aktif görevlerini gördüğü çok sekmeli ana panelin tasarım dosyasıdır.
+`characterwindow.py`, oyuncunun seviyesini, statü puanlarını (VIT, INT, STR, DEX), becerilerini (Skill), duygularını (Emoticon) ve görevlerini (Quest) yönettiği en kapsamlı bilgi panelidir.
 
 ---
 
 ## 🔍 Neleri Yönetir?
 
-### 1. Sekmeli Yapı (`TabControl`)
-Pencerenin alt kısmında bulunan ve Statü, Beceri, Duygular ve Görevler arasında geçiş yapmayı sağlayan buton grubunu yönetir.
+### 1. Statü Sayfası (`Status_Page`)
+Karakterin temel güç değerlerini ve HP, SP, Atak hızı gibi ikincil istatistiklerini barındırır.
+- **`Status_Plus_Button`**: Statü puanı arttığında beliren küçük artı butonlarını yönetir.
 
-### 2. Statü Slotları (`Parameter_Slot`)
-VIT, INT, STR, DEX gibi temel değerlerin ve Saldırı Değeri, Savunma gibi detaylı bilgilerin yazılacağı kutucukların yerlerini belirler.
+### 2. Beceri Sayfası (`Skill_Page`)
+Karakterin aktif ve pasif becerilerini yönetir.
+- **`Skill_Active_Slot`**: Savaş becerilerinin (Hava Kılıcı, Öfke vb.) yerleştiği slottur.
+- **`Skill_ETC_Slot`**: Madencilik, Binicilik, Liderlik gibi yardımcı pasif becerileri barındırır.
+- **`Skill_Group_Button`**: Beceri grubu seçimini (Örn: Savaşçıda Bedensel/Zihinsel ayrımı) sağlayan radyo butonlarıdır.
 
-### 3. Beceri Sayfası (`Skill_Page`)
-Karakterin yeteneklerinin (Örn: Hava Kılıcı) dizileceği ızgara (Grid) yapısını tanımlar. Her yetenek için belirli bir koordinat atanmıştır.
-
-### 4. Dinamik Başlıklar (`TitleBar`)
-Hangi sekme seçiliyse (Örn: Görevler), o sekmenin başlığının (`TitleName`) en üstte görünmesini sağlar.
+### 3. Duygu ve Görev Sayfaları
+- **`Emoticon_Page`**: Solo ve karşılıklı (Dans, Öpücük vb.) duyguların slotlarını barındırır.
+- **`Quest_Page`**: Mevcut görevlerin listesini ve detaylarını (`Quest_ScrollBar`) yönetir.
 
 ---
 
 ## 🛠️ Modifikasyon ve Kritik Uyarılar
 
 ### ✅ Yeni Statü Ekleme:
-Eğer oyununa "Kritik Şans" veya "Delici Şans" gibi yeni bir statü satırı eklemek istiyorsan, statü sekmesi (`Status_Page`) içindeki boş alanlara yeni metin ve kutucuk nesneleri eklemelisin.
+Eğer oyuna yeni bir statü (Örn: "Şans") eklemek istersen, `characterwindow.py` içinde yeni bir `text` ve `button` bloğu tanımlamalı ve koordinatları mevcut listeye göre hizalamalısın.
 
-### ✅ Skill Düzeni:
-6. veya 7. yetenekleri eklediğinde, bu yeteneklerin simgelerinin envanterdeki gibi üst üste binmemesi için buradaki koordinatları (`x`, `y`) genişletmelisin.
-
-### ⚠️ Tab Buton Senkronizasyonu:
-Buradaki butonların adı (Örn: `Tab_Button_01`), `uiCharacter.py` içindeki kodlarla eşleşmelidir. İsim değişirse butonlar çalışmaz.
+### ⚠️ Slot Kimlikleri (Index):
+`Skill_Active_Slot` içindeki `index` değerleri (1, 21, 41...), beceri gruplarına göre atanmıştır. Bu numaralar `skill_proto` ile doğrudan eşleşir. Yanlış index verilmesi becerilerin görünmemesine neden olur.
 
 ---
 
-## 🚨 Hata Ayıklama (Debug)
-
-**"Statü puanım var ama '+' butonuna basamıyorum" sorunu:**
-1.  `characterwindow.py` içinde o statünün yanındaki "artı" butonunun (`Status_Plus_Button`) koordinatlarını kontrol et. Bazen bir görsel (Image) butonun üzerine biner ve tıklamayı engeller.
-2.  Butonun `name` değerinin doğru olduğundan emin ol.
-
----
-
-## 📉 characterwindow.py Yapısal Düzeni
+## 📉 characterwindow.py Tasarım Hiyerarşisi
 ```mermaid
 graph TD
-    A[CharacterWindow] --> B[Board: Ana Çerçeve]
-    B --> C[TitleBars: Dinamik Başlıklar]
-    B --> D[TabControl: Sekme Butonları]
-    B --> E[Status_Page: Statü Verileri]
-    B --> F[Skill_Page: Yetenek Izgarası]
-    B --> G[Emoticon_Page: Hareketler/Danslar]
-    B --> H[Quest_Page: Görev Listesi]
+    A[CharacterWindow] --> B[Board: Ana Panel]
+    B --> C[Status_Page: Statüler ve HP/SP]
+    B --> D[Skill_Page: Aktif ve Pasif Beceriler]
+    B --> E[Emoticon_Page: Duygu Slotları]
+    B --> F[Quest_Page: Görev Listesi]
 ```
 
 ---
 
-**Sonuç:** `characterwindow.py`, oyuncunun karakter gelişimini takip ettiği "Kontrol Panelidir". Karakterin tüm teknik verilerinin görsel sunumu buradan yönetilir.
+**Veri Akışı:** `Server (Status/Skill Data)` -> `root/uicharacter.py` -> `characterwindow.py` -> Ekran.
