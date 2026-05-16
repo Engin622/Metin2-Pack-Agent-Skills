@@ -1,50 +1,47 @@
-# 🎓 Metin2 Skills: `guildwindow.py` (Lonca Penceresi Tasarımı)
+# 🎓 Metin2 Skills: `guildwindow.py` (Lonca Penceresi)
 
-`guildwindow.py`, lonca yönetim panelinin ana çerçevesini ve 6 farklı sekmeye (Bilgi, Üyeler, Rütbeler, Beceriler, Binalar, Duyurular) geçiş yapan butonların tasarımını yöneten dosyadır.
+`guildwindow.py`, oyuncuların lonca bilgilerini, üyelerini, rütbelerini ve becerilerini yönettiği devasa bir kontrol panelidir. Bu pencere, her biri ayrı bir `.py` dosyasında tanımlanan çok sayıda "Sayfa" (Page) yapısından oluşur.
 
 ---
 
 ## 🔍 Neleri Yönetir?
 
-### 1. Sekme Görselleri (`Tab_01` – `Tab_06`)
-Hangi sekme seçiliyse, o sekmenin vurgulandığı (aktif) arka plan görselini belirler. Her sekme için farklı bir `.sub` dosyası kullanılır.
+### 1. Sayfa Tabanlı Mimari
+Lonca penceresi tıklandığında aşağıdaki alt sayfalar dinamik olarak yüklenir:
+- **`guildwindow_guildinfopage.py`**: Lonca ismi, seviyesi, EXP miktarı ve lonca duyurusunun göründüğü ana sayfadır.
+- **`guildwindow_memberpage.py`**: Lonca üyelerinin listesi, çevrimiçi durumları, karakter sınıfları ve seviyelerinin listelendiği alandır.
+- **`guildwindow_gradepage.py`**: Lonca rütbelerinin (Lider, Üye vb.) yetkilerinin (Davet, Atma, Yazma) ayarlandığı sayfadır.
+- **`guildwindow_guildskillpage.py`**: Lonca savaşlarında kullanılan özel becerilerin ve aktif olan bonusların listesidir.
+- **`guildwindow_boardpage.py`**: Lonca içindeki mesajlaşma ve duyuru tahtasıdır.
+- **`guildwindow_baseinfopage.py`**: Lonca arazisi ve binaları ile ilgili temel bilgileri barındırır.
 
-### 2. Sekme Butonları (`Tab_Button_01` – `Tab_Button_06`)
-Her sekmeye geçişi tetikleyen görünmez `radio_button` bileşenlerini yönetir. Bunlar `.sub` görselleri üzerine "klikleme alanı" (hitbox) olarak oturur.
-
-### 3. Locale Bağımlılığı (`LOCALE_PATH`)
-Sekme görselleri farklı diller için farklı klasörlerden çekilir. Türkçe, Almanca veya Korece sunucularda sekmelerdeki yazılar değişir.
+### 2. Sekme Yönetimi
+Pencerenin üstünde yer alan sekmeler, bu alt sayfalar arasında geçişi sağlar.
 
 ---
 
 ## 🛠️ Modifikasyon ve Kritik Uyarılar
 
-### ✅ Yeni Sekme Ekleme:
-Loncaya yeni bir sayfa (Örn: "Lonca Deposu") eklemek istersen, `Tab_07` + `Tab_Button_07` tanımlamalı ve `uiGuild.py` tarafında bu butona bir fonksiyon bağlamalısın.
+### ✅ Üye Listesi Sütunları:
+Eğer üye listesine yeni bir bilgi (Örn: "Son Giriş Tarihi") eklemek istersen, `memberpage.py` içindeki sütun başlıklarını ve veri slotlarını genişletmelisin.
 
-### ✅ Buton Genişlikleri:
-6 butonun toplam genişliği (`53+67+60+60+60+55 ≈ 355`) pencerenin genişliğine (376) uyacak şekilde hesaplanmıştır. Yeni sekme eklerken mevcut genişlikleri daraltman gerekebilir.
-
-### ⚠️ Görsel-Buton Eşleşmesi:
-`Tab_Button_01`'in koordinatları `Tab_01` görselindeki ilk sekme yazısıyla tam örtüşmelidir; aksi halde oyuncu doğru yere tıkladığını düşünürken yanlış sekmeyi açabilir.
+### ⚠️ Bölgesel Farklılıklar:
+Klasörde `guildinfopage_jp.py` veya `_eu.py` gibi dosyalar görebilirsin. Metin2 motoru, oyunun çalıştığı bölgeye göre farklı mizanpajlar yükleyebilir. Genellikle Türkiye sunucularında standart olan dosya kullanılır.
 
 ---
 
-## 📉 guildwindow.py Sekme Yapısı
+## 📉 guildwindow.py Tasarım Hiyerarşisi
 ```mermaid
 graph TD
-    A[GuildWindow: 376x356] --> B[Board: Başlıklı Ana Çerçeve]
-    B --> C[TabControl: Sekme Alanı]
-    C --> D[Tab Görselleri: 6 Arka Plan]
-    C --> E[Tab Butonları: 6 Radio Button]
-    E --> E1[Bilgi]
-    E --> E2[Üyeler]
-    E --> E3[Rütbeler]
-    E --> E4[Beceriler]
-    E --> E5[Binalar]
-    E --> E6[Duyurular]
+    A[GuildWindow: Ana Konteyner] --> B[Tab Control: Sekmeler]
+    B --> C1[GuildInfoPage]
+    B --> C2[MemberPage]
+    B --> C3[GradePage]
+    B --> C4[SkillPage]
+    B --> C5[BoardPage]
+    B --> C6[BaseInfoPage]
 ```
 
 ---
 
-**Sonuç:** `guildwindow.py`, loncanın "Ana Menüsüdür". 6 sekmeli yapısıyla oyundaki en kapsamlı yönetim panellerinden biridir.
+**Veri Akışı:** `Server (Guild Data)` -> `root/uiguild.py` -> `guildwindow.py` -> Ekran.
