@@ -1,59 +1,51 @@
-# 🎓 Metin2 Skills: `whisperdialog.py` (Fısıltı Penceresi Tasarımı)
+# 🎓 Metin2 Skills: `whisperdialog.py` (Fısıltı - Özel Mesaj)
 
-`whisperdialog.py`, oyuncuların birbirlerine attığı özel mesajların (PM/Fısıltı) ekran yerleşimini, yazı yazma alanını ve butonlarını yöneten tasarım dosyasıdır.
+`whisperdialog.py`, oyuncuların birbirleriyle özel olarak mesajlaşmasını sağlayan "Fısıltı" penceresinin tasarım dosyasıdır.
 
 ---
 
 ## 🔍 Neleri Yönetir?
 
-### 1. İsim Paneli (`name_slot`)
-Mesajlaşılan kişinin isminin göründüğü ve yeni bir fısıltı başlatırken isim yazılan (`titlename_edit`) alanı yönetir.
+### 1. Mesajlaşma Alanı (`chatline`)
+Kullanıcının mesajını yazdığı `editline` alanıdır.
+- **`multi_line : 1`**: Uzun mesajların alt satıra geçmesine izin verir.
+- **`input_limit : 40`**: Bir kerede gönderilebilecek maksimum karakter sınırıdır.
 
-### 2. Yazı Yazma Alanı (`editbar`)
-Pencerenin alt kısmında bulunan, mesajın yazıldığı siyah arka planlı alanı ve içindeki `chatline` (metin giriş satırı) bileşenini belirler.
+### 2. GM İşareti (`gamemastermark`)
+Eğer mesaj bir Game Master (GM) tarafından geliyorsa, ismin yanında görünen özel logoyu (`ymirred.tga`) yönetir.
 
-### 3. Yönetici İşareti (`gamemastermark`)
-Eğer bir Game Master (GM) ile konuşuluyorsa, ismin yanında çıkan özel logonun konumunu ve ölçeğini (`x_scale`, `y_scale`) yönetir.
+### 3. Kontrol Butonları
+- **`ignorebutton`**: Oyuncuyu engellemek için kullanılır.
+- **`minimizebutton`**: Pencereyi ekranın sol altına küçültür.
+- **`sendbutton`**: Yazılan mesajı iletir.
 
-### 4. Engelleme ve Raporlama Butonları
-Taciz durumlarını önlemek için kullanılan "Engelle" (`ignorebutton`) ve "Rapor Et" butonlarının yerleşimini sağlar.
+### 4. Kaydırma Çubuğu (`scrollbar`)
+Geçmiş mesajlar arasında gezinmeyi sağlayan `thin_scrollbar` yapısını barındırır.
 
 ---
 
 ## 🛠️ Modifikasyon ve Kritik Uyarılar
 
-### ✅ Emoji ve Hızlı Yanıt Desteği:
-`sendbutton` yanına yeni küçük butonlar ekleyerek "Emoji" seçici veya hazır mesaj kalıpları (Örn: "Selam", "Kaç Lv?") ekleyebilirsin.
+### ✅ Tasarım ve Renk:
+`editbar` içindeki `color` değeri (`0x77000000`) mesaj yazma alanının şeffaf siyah olmasını sağlar. Bu değeri değiştirerek arka plan rengini özelleştirebilirsin.
 
-### ✅ Pencere Boyutunu Artırma:
-Özellikle uzun sohbetlerde yazıları daha rahat okumak için pencerenin `height` değerini artırabilir, `scrollbar` boyutunu buna göre güncelleyebilirsin.
-
-### ⚠️ Metin Sınırı (`input_limit`):
-`chatline` içindeki `input_limit` değeri, tek seferde gönderilebilecek karakter sayısını belirler. Bunu çok artırırsan sunucu tarafındaki paket sınırı nedeniyle mesajlar kesilebilir.
+### ⚠️ Limit Genişliği:
+`limit_width` değeri, yazının kutu dışına taşmadan ne kadar genişleyebileceğini belirler. Pencereyi büyütürsen bu değeri de artırmalısın.
 
 ---
 
-## 🚨 Hata Ayıklama (Debug)
-
-**"Yazdığım yazılar kutunun dışına taşıyor" sorunu:**
-1.  `chatline` içindeki `limit_width` değerini kontrol et. Bu değer, yazının genişliğinin pencere genişliğini (`width`) aşmamasını sağlar.
-2.  `multi_line` özelliğinin aktif olduğundan emin ol.
-
----
-
-## 📉 whisperdialog.py Katman Düzeni
+## 📉 whisperdialog.py Tasarım Hiyerarşisi
 ```mermaid
 graph TD
-    A[WhisperDialog] --> B[Board: İnce Arka Plan]
-    B --> C[Header: İsim ve GM İkonu]
-    C --> C1[NameEdit: İsim Yazma Alanı]
-    C --> C2[ControlButtons: Kapat / Küçült]
-    B --> D[History: Mesaj Geçmişi ve Kaydırma Barı]
-    B --> E[Footer: Mesaj Yazma ve Gönderme]
-    E --> E1[ChatLine: Yazı Satırı]
-    E --> E2[Send: Gönder Butonu]
+    A[WhisperDialog] --> B[Board: İnce Panel]
+    B --> C[NameSlot: Oyuncu İsmi]
+    B --> D[ScrollBar: Mesaj Geçmişi]
+    B --> E[EditBar: Mesaj Yazma Alanı]
+    E --> E1[ChatLine: Yazı Girişi]
+    E --> E2[SendButton: Gönder]
+    B --> F[ControlButtons: Kapat, Küçült, Engelle]
 ```
 
 ---
 
-**Sonuç:** `whisperdialog.py`, oyunun "Özel Mesajlaşma" arayüzüdür. Oyuncular arasındaki birebir iletişimin düzenini ve konforunu bu dosya belirler.
+**Veri Akışı:** `root/uiwhisper.py` -> `whisperdialog.py` -> `Server (Whisper Packet)`.
