@@ -1,56 +1,41 @@
-# 🎓 Metin2 Skills: `questiondialog.py` (Onay Penceresi Tasarımı)
+# 🎓 Metin2 Skills: `questiondialog.py` (Standart Onay Penceresi)
 
-`questiondialog.py`, oyunda çıkan "Emin misiniz?", "Silmek istiyor musunuz?" gibi Evet/Hayır sorularının sorulduğu genel onay penceresinin tasarım dosyasıdır.
+`questiondialog.py`, oyunda "Emin misiniz?" gibi basit evet/hayır soruları sormak için kullanılan en temel onay penceresidir.
 
 ---
 
 ## 🔍 Neleri Yönetir?
 
-### 1. Mesaj Alanı (`message`)
-Sorulan sorunun pencerenin neresinde duracağını belirler. 
-- **`horizontal_align`**: Sorunun her zaman pencereyi ortalamasını sağlar.
-- **`y : 38`**: Yazının dikey konumudur.
+### 1. Tek Satır Mesaj (`message`)
+Kullanıcıya sorulan soruyu (`uiScriptLocale.MESSAGE`) gösteren merkezlenmiş metin alanıdır.
 
-### 2. Onay ve İptal Butonları (`accept` & `cancel`)
-"Evet" ve "Hayır" butonlarının konumlarını yönetir.
-- **`x : -40` / `x : 40`**: Butonları pencerenin ortasından sağa ve sola simetrik olarak dağıtır.
+### 2. Evet / Hayır Butonları (`accept`, `cancel`)
+Standart `Middle_Button` görsellerini kullanan ve işlemin sonucunu `root` tarafına ileten butonlardır.
 
-### 3. Ana Çerçeve (`board`)
-Pencerenin toplam genişlik (340) ve yüksekliğini (105) belirler. Bu pencere oyunun en sık kullanılan "Pop-up" ekranıdır.
+### 3. Ekran Konumu
+Ekranın tam ortasında açılır. `width: 340` değeri, çoğu soru cümlesi için yeterli genişliği sağlar.
 
 ---
 
 ## 🛠️ Modifikasyon ve Kritik Uyarılar
 
-### ✅ Görsel Modernizasyon:
-Sıkıcı gri renklerden kurtulmak için `board` ve `button` görsellerini sunucunun özel temasıyla (Örn: Altın sarısı çerçeveler) değiştirebilirsin.
+### ✅ Buton Yerleşimi:
+`x: -40` ve `x: 40` değerleri, butonların merkezden ne kadar uzakta duracağını belirler. Eğer daha büyük butonlar kullanacaksan bu aralığı açmalısın.
 
-### ✅ Uzun Cümleler İçin Genişletme:
-Eğer soracağın sorular çok uzunsa (Örn: 3 satırlık bir uyarı), `height` değerini artırıp `message` koordinatlarını yukarı çekmelisin.
-
-### ⚠️ Buton İsimleri:
-`accept` ve `cancel` isimleri Python tarafındaki `uiCommon.py` ile bağlantılıdır. Bu isimleri değiştirirsen butonlar tıklansa bile işlem yapmaz.
+### ⚠️ Kod Bağlantısı:
+Bu pencere `root/uicommon.py` içindeki `QuestionDialog` sınıfı tarafından dinamik olarak yönetilir.
 
 ---
 
-## 🚨 Hata Ayıklama (Debug)
-
-**"Pencere açılıyor ama yazı görünmüyor" sorunu:**
-1.  `message` içindeki `text` değerinin boş olup olmadığını kontrol et. (Gerçek yazı Python tarafından basılır, ama burada bir varsayılan değer olmalıdır).
-2.  Yazı renginin arka planla aynı olup olmadığını kontrol et.
-
----
-
-## 📉 questiondialog.py Tasarım Şeması
+## 📉 questiondialog.py Tasarım Hiyerarşisi
 ```mermaid
 graph TD
-    A[QuestionDialog] --> B[Board: Orta Boy Çerçeve]
-    B --> C[Message: Dinamik Soru Metni]
-    B --> D[ButtonContainer]
-    D --> D1[Accept: Evet Butonu]
-    D --> D2[Cancel: Hayır Butonu]
+    A[QuestionDialog] --> B[Board: Ana Panel]
+    B --> C[Message: Soru Yazısı]
+    B --> D[Accept: Evet Butonu]
+    B --> E[Cancel: Hayır Butonu]
 ```
 
 ---
 
-**Sonuç:** `questiondialog.py`, oyunun "Güvenlik Süzgecidir". Kritik kararlardan önce oyuncuya son bir kez sorulan soruların sunumunu yapar.
+**Veri Akışı:** `root/uicommon.py` -> `questiondialog.py` -> Ekran.

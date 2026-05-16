@@ -1,40 +1,44 @@
-# 🎓 Metin2 Skills: `loadingwindow.py` (Yükleme Ekranı Tasarımı)
+# 🎓 Metin2 Skills: `loadingwindow.py` (Yükleme Çubuğu ve Ekranı)
 
-`loadingwindow.py`, harita değiştirilirken veya oyuna ilk girilirken görünen yükleme ekranının tasarım dosyasıdır.
+`loadingwindow.py`, oyun haritaları yüklenirken ekranda dolan o meşhur sarı çubuğu (Gauge) ve arka plandaki dokuyu yöneten tasarım dosyasıdır.
 
 ---
 
 ## 🔍 Neleri Yönetir?
 
-### 1. Yükleme Barı (`GaugeBoard`)
-Yüklemenin yüzde kaçta olduğunu gösteren ilerleme çubuğunun konumunu ve boyutunu belirler.
+### 1. Yükleme Çubuğu (`GageBoard`)
+İki ana parçadan oluşur:
+- **`gauge_empty.sub`**: Çubuğun boş, gri halidir.
+- **`gauge_full.sub`**: Yükleme ilerledikçe dolan, renkli (Genellikle sarı) kısımdır. `root` tarafındaki `SetPercentage` fonksiyonu ile bu resmin genişliği dinamik olarak artırılır.
 
-### 2. Arka Plan Görseli
-Yükleme sırasında gösterilen tam ekran arka plan resminin yerleşimini yönetir. Genellikle harita bazlı farklı görseller gösterilir.
+### 2. Hareketli Arka Plan (`BackGage` Ani Image)
+Çubuğun hemen arkasında veya üstünde dönen küçük bir animasyonu (`00.sub`'dan `23.sub`'a kadar) yönetir. Bu, oyunun donmadığını oyuncuya hissettirmek için kullanılan bir micro-animasyondur.
 
-### 3. İpucu Metni (`TipBoard`)
-"Biliyor muydunuz?" tarzı oyun ipuçlarının gösterildiği metin alanını düzenler.
+### 3. Ölçeklendirme (`x_scale`, `y_scale`)
+Pencere, oyuncunun ekran çözünürlüğüne (Örn: 1920x1080) otomatik olarak genişleyecek şekilde matematiksel olarak ölçeklendirilir.
 
 ---
 
 ## 🛠️ Modifikasyon ve Kritik Uyarılar
 
-### ✅ Yükleme Ekranı Görseli Değiştirme:
-Arka plan görseli genellikle `introLoading.py` veya `networkModule.py` tarafından dinamik olarak ayarlanır. Bu dosya sadece çerçeveyi belirler.
+### ✅ Özel Loading Bar Yapımı:
+Eğer standart sarı çubuğu değiştirmek istiyorsan, `gauge_full.sub` ve `gauge_empty.sub` dosyalarını kendi tasarımınla değiştirebilirsin. Boyutları değiştirirsen `.py` içindeki `width` ve `height` değerlerini de güncellemelisin.
 
-### ⚠️ Bar Boyutu:
-Yükleme barının genişliğini artırırsan, yüzde hesaplamasının doğru görünmesi için `uiLoading.py` kodunda da güncelleme yapmalısın.
+### ⚠️ Hata Mesajı:
+`ErrorMessage` alanı, eğer harita dosyaları yüklenemezse ekranda beliren "Yükleme Hatası" yazısını tutar.
 
 ---
 
-## 📉 loadingwindow.py Yapısı
+## 📉 loadingwindow.py Tasarım Hiyerarşisi
 ```mermaid
 graph TD
-    A[LoadingWindow: Tam Ekran] --> B[BackGround: Harita Görseli]
-    A --> C[GaugeBoard: İlerleme Barı]
-    A --> D[TipBoard: İpucu Metni]
+    A[LoginWindow: Tam Ekran] --> B[BackGround: Arka Plan Dokusu]
+    A --> C[GageBoard: Yükleme Çubuğu Grubu]
+    C --> D[BackGage: Boş Çubuk]
+    C --> E[FullGage: Dolan Çubuk]
+    C --> F[AniImage: Hareketli Efekt]
 ```
 
 ---
 
-**Sonuç:** `loadingwindow.py`, oyuncunun sabırla beklediği "Geçiş Kapısı"dır. İyi tasarlanmış bir yükleme ekranı bekleme süresini daha az sıkıcı kılar.
+**Veri Akışı:** `root/introloading.py` -> `loadingwindow.py` -> `Oyun Motoru (Loading Thread)`.

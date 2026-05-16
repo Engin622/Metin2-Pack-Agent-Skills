@@ -1,43 +1,48 @@
-# 🎓 Metin2 Skills: `colorinfo.py` (Renk Yönetimi)
+# 🎓 Metin2 Skills: `colorinfo.py` (Renk Yapılandırması)
 
-Bu dosya, oyunun "Paleti"dir. Buradaki sayıları değiştirerek oyunun tüm atmosferini (Sohbet renkleri, isim renkleri vb.) değiştirebilirsin.
-
----
-
-## 🔍 Hangi Satır Neyi Değiştirir?
-
-| Değişken Adı | Ne İşe Yarar? | Öneri |
-| :--- | :--- | :--- |
-| `CHAT_RGB_NOTICE` | Alttan geçen sarı/beyaz duyurular. | Daha dikkat çekici bir renk (örn: Parlak Yeşil) yapılabilir. |
-| `CHAT_RGB_WHISPER` | Fısıltı mesajlarının rengi. | Standart yeşildir, mor veya pembe tonları popülerdir. |
-| `CHR_NAME_RGB_PK` | Derecesi "Zalim" veya "Agresif" olanların isim rengi. | Kırmızının daha koyu bir tonu yapılabilir. |
-| `TITLE_RGB_GOOD_4` | "Kahraman" derecesindeki oyuncunun yazı rengi. | Turkuaz veya Altın sarısı yapılabilir. |
+`colorinfo.py`, oyun içindeki sohbet mesajlarının, oyuncu isimlerinin ve derece (karma) unvanlarının renklerini RGB formatında tanımlayan merkezi bir dosyadır.
 
 ---
 
-## 🛠️ Nasıl Hatasız Değiştirilir? (Modlama Notları)
+## 🔍 Neleri Yönetir?
 
-### ✅ Doğru Format:
-`DEGISKEN_ADI = (Kırmızı, Yeşil, Mavi)`
-Örnek: `CHAT_RGB_TALK = (255, 255, 255)` -> Saf Beyaz.
+### 1. Sohbet Renkleri (`CHAT_RGB_*`)
+Sohbet satırındaki mesaj türlerine göre renkleri belirler:
+- **`TALK`**: Beyaz (Genel konuşma).
+- **`GUILD`**: Sarı (Lonca konuşması).
+- **`WHISPER`**: Yeşil (Fısıltı).
+- **`SHOUT`**: Turkuaz (Bağırma).
 
-### ⚠️ Dikkat: Oyunun Açılmama Sebepleri:
-1.  **Virgül Unutmak:** `(255, 255 255)` yazarsan Python hata verir ve oyun açılırken kapanır.
-2.  **Parantez Kapatmamak:** `(255, 255, 255` yazmak en sık yapılan hatadır.
-3.  **Sayı Aralığı:** Değerler **0 ile 255** arasında olmalıdır. `(300, 0, 0)` yazarsan oyun motoru bunu anlamayabilir ve siyah gösterebilir.
+### 2. İsim Renkleri (`CHR_NAME_RGB_*`)
+Karakterlerin üzerindeki isimlerin rengini belirler:
+- **`MOB`**: Kırmızı (Düşmanlar).
+- **`NPC`**: Yeşil (Dost birimler).
+- **`PC`**: Altın sarısı (Oyuncular).
+- **`PK`**: Kahverengi (Katil oyuncular).
+
+### 3. Derece Renkleri (`TITLE_RGB_*`)
+Oyuncuların karmasına göre (Kahraman, Soylu, Zalim vb.) isimlerinin yanında beliren unvan renklerini yönetir.
 
 ---
 
-## 🚀 Örnek: Fısıltı Rengini "Neon Pembe" Yapmak
-`CHAT_RGB_WHISPER = (255, 0, 255)` satırını bu şekilde değiştirirsen, oyundaki tüm fısıltılar anında neon pembe olur.
+## 🛠️ Modifikasyon ve Kritik Uyarılar
+
+### ✅ Özel Renk Teması:
+Sunucuna özel bir renk teması oluşturmak istiyorsan buradaki RGB değerlerini (`R, G, B`) değiştirebilirsin. Örneğin Bağırma rengini (`SHOUT`) mor yapmak için `(255, 0, 255)` değerini atayabilirsin.
+
+### ⚠️ İmparatorluk Renkleri:
+`EMPIRE_PC_A, B, C` değerleri, imparatorluk savaşlarında veya haritalarında rakip krallıkların isimlerinin hangi renkte (Örn: Kırmızı, Sarı, Mavi) görüneceğini belirler.
 
 ---
 
-## 📉 Bağlantı Şeması
+## 📉 colorinfo.py Veri Akışı
 ```mermaid
 graph LR
-    A[colorinfo.py] -- Değişiklik yapıldı --> B{Oyun Açılış}
-    B -- Hata Varsa --> C[Syserr.txt Yazılır ve Kapanır]
-    B -- Hatasızsa --> D[UI Modülleri Renkleri Çeker]
-    D --> E[Oyun İçi Görsel Değişim]
+    A[Oyun Motoru: İsim Yazdır] --> B{colorinfo.py}
+    B -- Oku: PC Color --> C[RGB: 255, 215, 76]
+    C --> D[Ekran: Sarı İsimli Oyuncu]
 ```
+
+---
+
+**Veri Akışı:** `root/ui.py` -> `colorinfo.py` -> `Oyun Motoru (Renderer)`.

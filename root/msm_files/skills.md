@@ -1,64 +1,46 @@
-# 🎓 Metin2 Skills: `.msm` Dosyaları (Karakter Görsel Yapılandırması)
+# 🎓 Metin2 Skills: `root` Yapılandırma Dosyaları (MSM ve TXT)
 
-`.msm` dosyaları (Örn: `warrior_m.msm`), bir karakter sınıfının dış görünüşünü, giydiği zırhları, saç stillerini ve kemik yapısına bağlı olan efektlerin (Örn: Parlama) koordinatlarını belirleyen "Görsel Mimari" dosyalarıdır.
+`root` klasörü sadece Python mantık dosyalarından oluşmaz; aynı zamanda karakterlerin görünümünü ve dünya haritasını tanımlayan kritik yapılandırma dosyalarını (`.msm` ve `.txt`) barındırır.
 
 ---
 
-## 🔍 Neleri Yönetir?
+## 🔍 Neleri Yönetirler?
 
-### 1. Ana Model (`BaseModelFileName`)
-Karakterin üzerinde hiçbir eşya yokken (çıplak halde) görünecek temel 3D model dosyasını (`.gr2`) belirler.
+### 1. `.msm` (Motion Script Model - Karakter Yapılandırması)
+Her karakter sınıfı ve cinsiyeti için bir dosya bulunur (Örn: `warrior_m.msm`).
+- **`ShapeData`**: Karakterin giydiği zırhların hangi model (`.gr2`) ve dokuyu (`.dds`) kullanacağını ID bazlı eşleştirir.
+- **`HairData`**: Saç stillerini ve kask görünümlerini yönetir.
+- **`AttachingData`**: Silahların veya efektlerin karakterin neresine (eline, sırtına) takılacağını belirleyen kemik (Bone) bağlantılarını içerir.
 
-### 2. Saç Stilleri (`Group HairData`)
-Oyundaki tüm saç stillerini ve kaskları birer ID (`HairIndex`) ile modellerle eşleştirir.
-- **`HairIndex`**: Sunucu tarafındaki eşya koduyla bağlantılıdır.
-- **`Model`**: Saçın 3D dosyası.
-- **`TargetSkin`**: Saçın rengini belirleyen doku dosyası.
+### 2. `atlasinfo.txt` (Dünya Haritası Listesi)
+Oyundaki tüm haritaların teknik isimlerini ve koordinatlarını barındırır.
+- **`metin2_map_a1  0 0 3 3`**: Harita klasör adını ve haritanın dünya üzerindeki konumunu tanımlar. Işınlanma sistemi bu dosyayı referans alır.
 
-### 3. Zırh ve Kostüm Modelleri (`Group ShapeData`)
-Envanterdeki bir zırhın karakterin üzerinde nasıl görüneceğini belirler.
-- **`ShapeIndex`**: Sunucudaki `item_proto` dosyasının `value3` sütunuyla eşleşmek zorundadır.
-- **`Model`**: Zırhın 3D dosyası.
-- **`SourceSkin / TargetSkin`**: Aynı 3D modeli kullanarak farklı renklerde zırhlar (Örn: Keşiş Plaka ve Demir Plaka) oluşturulmasını sağlar.
-
-### 4. Bağlantı Noktaları (`Group AttachingData`)
-Silahların, parlamaların veya kanatların karakterin hangi kemiğine (El, Sırt, Ayak) takılacağını ve hangi açıyla duracağını belirler.
+### 3. `npclist.txt` (Model Eşleştirme)
+`mob_proto` içindeki yaratık/NPC kodlarını, `pack` içindeki görsel klasörlerle eşleştirir.
+- **`101 stray_dog`**: 101 nolu canavarın `stray_dog` klasöründeki modeli kullanmasını sağlar.
 
 ---
 
 ## 🛠️ Modifikasyon ve Kritik Uyarılar
 
-### ✅ Yeni Zırh/Kostüm Ekleme:
-Yeni bir zırh eklediğinde, ona bir `ShapeIndex` vermelisin. Bu numara daha önce kullanılmamış olmalı ve sunucudaki `value3` değeriyle aynı olmalıdır.
+### ✅ Yeni Zırh/Saç Ekleme:
+Yeni bir zırh eklediğinde mutlaka ilgili `.msm` dosyasına yeni bir `ShapeIndex` bloğu eklemelisin. Aksi halde zırhı giydiğinde karakter beyaz görünür veya oyun çöker.
 
-### ✅ Efekt Pozisyonlama:
-Eğer bir efekt (Örn: Ayak izi efekti) karakterin çok yukarısında veya aşağısında çıkıyorsa, `AttachingData` içindeki `Position` (X, Y, Z) koordinatlarını buradan düzeltebilirsin.
-
-### ⚠️ ShapeIndex Sınırı:
-Eski oyun motorlarında `ShapeIndex` değeri belirli bir sınırı (Genelde 255 veya 65535) aşarsa karakterin zırhı görünmez olabilir.
+### ⚠️ TAB Karakteri:
+`atlasinfo.txt` ve `npclist.txt` dosyalarında sütunlar arası boşluklar genellikle **TAB** karakteri ile verilir. Normal boşluk (Space) kullanılması istemcinin dosyayı yanlış okumasına neden olabilir.
 
 ---
 
-## 🚨 Hata Ayıklama (Debug)
-
-**"Zırhı giyiyorum ama karakter görünmez oluyor" sorunu:**
-1.  `.msm` dosyasındaki `ShapeIndex` değerinin sunucudaki `value3` ile aynı olduğunu doğrula.
-2.  `Model` satırındaki `.gr2` dosya yolunun doğru yazıldığından emin ol.
-3.  Dosyanın en başındaki `ShapeDataCount` değerini, eklediğin yeni zırhlarla birlikte artırmayı unutma.
-
----
-
-## 📉 .msm Dosyası Hiyerarşisi
+## 📉 root Yapılandırma Veri Akışı
 ```mermaid
 graph TD
-    A[Savaşçı Erkek MSM] --> B[HairData: Saç ve Kasklar]
-    A --> C[ShapeData: Zırh ve Kostümler]
-    A --> D[AttachingData: Silah ve Efekt Noktaları]
-    C --> C1[ShapeIndex: Sunucu Bağlantısı]
-    C --> C2[Model: 3D Dosyası]
-    C --> C3[Skin: Renk Dosyası]
+    A[item_proto: Zırh ID 15] --> B[warrior_m.msm: ShapeIndex 15]
+    B -- Oku: Model/Doku --> C[pack/PC/warrior_king.gr2]
+    D[Server: Go to Map A1] --> E[atlasinfo.txt]
+    E -- Bul: Klasör Yolu --> F[pack/OutdoorA1]
 ```
 
 ---
 
-**Sonuç:** `.msm` dosyaları, karakterin "Gardırobudur". Oyundaki tüm görsel çeşitlilik bu dosyaların doğru yapılandırılmasına bağlıdır.
+**Veri Akışı:** `proto` -> `root/*.msm` / `root/*.txt` -> `pack/Assets`.
