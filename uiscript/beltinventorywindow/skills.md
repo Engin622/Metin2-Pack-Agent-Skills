@@ -1,50 +1,43 @@
-# 🎓 Metin2 Skills: `beltinventorywindow.py` (Kemer Envanteri Tasarımı)
+# 🎓 Metin2 Skills: `beltinventorywindow.py` (Kemer Envanteri)
 
-`beltinventorywindow.py`, belirli kemerler takıldığında envanterin yanında açılan ekstra 4x4 (16 slot) iksir/sarf malzeme alanının tasarım dosyasıdır.
+`beltinventorywindow.py`, oyuncu bir kemer taktığında aktifleşen ve sadece belirli eşyaların (İksirler vb.) konulabildiği ek envanter alanıdır.
 
 ---
 
 ## 🔍 Neleri Yönetir?
 
-### 1. Kemer Slotları (`BeltInventorySlot`)
-4x4 boyutunda bir `grid_table` ile toplam 16 adet iksir veya sarf malzeme slotu sunar. Başlangıç indeksi `item.BELT_INVENTORY_SLOT_START` sabitinden otomatik çekilir.
+### 1. Genişleme ve Küçültme (`Expand / Minimize`)
+Kemer envanteri genellikle kapalı durur. Oyuncu yandaki ok butonuna (`ExpandBtn`) bastığında pencere açılır; `MinimizeBtn` ile tekrar gizlenir.
 
-### 2. Genişlet / Küçült Butonları (`ExpandBtn` / `MinimizeBtn`)
-Panel iki durumda çalışır:
-- **Kapalı (Minimized):** Sadece küçük bir ok butonu görünür.
-- **Açık (Expanded):** Tam slot ızgarası görünür hale gelir.
+### 2. Kemer Slotları (`BeltInventorySlot`)
+- **`4x4 Grid`**: Toplam 16 adet ek slot barındırır.
+- **`item.BELT_INVENTORY_SLOT_START`**: Bu slotların index numaraları kemer sistemine özeldir ve genellikle 180'den başlar.
 
-### 3. Katmanlı Yapı (`BeltInventoryLayer`)
-Panel, genişletme/küçültme animasyonunu desteklemek için iç içe geçmiş pencere katmanları kullanır.
-
-### 4. Özel Arka Plan (`bg.tga`)
-Standart envanter çerçevesi yerine kemer temalı özel bir arka plan görseli kullanır.
+### 3. Arka Plan Görseli (`bg.tga`)
+Pencerenin temasını belirleyen ve `belt_inventory` klasöründen çekilen özel bir arka plan resmidir.
 
 ---
 
 ## 🛠️ Modifikasyon ve Kritik Uyarılar
 
-### ✅ Slot Kapasitesini Artırma:
-`x_count` veya `y_count` değerlerini artırarak daha fazla slot ekleyebilirsin. Ancak sunucu tarafındaki `BELT_INVENTORY_SLOT_COUNT` değerini de buna göre güncellemelisin.
+### ✅ Slot Kısıtlaması:
+Kemer envanterine her eşya konulamaz. Hangi eşyaların buraya girebileceği `root/uiinventory.py` içindeki `CanInBelt` veya benzeri fonksiyonlarla kod tarafında kısıtlanır.
 
-### ✅ Konum Senkronizasyonu:
-Bu pencere envanterin soluna yapışacak şekilde konumlanmıştır (`SCREEN_WIDTH - 176 - 148`). Envanter boyutunu değiştirirsen buradaki ofseti de güncellemelisin.
-
-### ⚠️ Kemer Bağımlılığı:
-Bu pencere sadece uygun bir kemer eşyası takıldığında gösterilir. Kemer takılı değilse bu pencere hiç oluşturulmaz.
+### ⚠️ Görsel Yollar:
+Kullanılan `.tga` resimleri `pack/ETC` içindeki `ymir work/ui/game/belt_inventory/` klasöründe bulunmalıdır.
 
 ---
 
-## 📉 beltinventorywindow.py Katman Şeması
+## 📉 beltinventorywindow.py Tasarım Hiyerarşisi
 ```mermaid
 graph TD
-    A[BeltInventoryWindow: 148x139] --> B[ExpandBtn: Aç Butonu]
-    A --> C[BeltInventoryLayer]
-    C --> D[MinimizeBtn: Kapat Butonu]
+    A[BeltInventoryWindow] --> B[ExpandBtn: Açma Butonu]
+    A --> C[BeltInventoryLayer: Katman]
+    C --> D[MinimizeBtn: Kapatma Butonu]
     C --> E[BeltInventoryBoard: Ana Panel]
-    E --> F[BeltInventorySlot: 4x4 Grid]
+    E --> F[BeltInventorySlot: 4x4 Izgara]
 ```
 
 ---
 
-**Sonuç:** `beltinventorywindow.py`, savaşçıların "Taktik Çantası"dır. İksirlere anında erişimi sağlayarak savaş sırasındaki tepki süresini kısaltır.
+**Veri Akışı:** `Server (Belt Data)` -> `root/uiinventory.py` -> `beltinventorywindow.py`.

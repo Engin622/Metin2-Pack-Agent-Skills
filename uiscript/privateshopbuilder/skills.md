@@ -1,49 +1,45 @@
-# 🎓 Metin2 Skills: `privateshopbuilder.py` (Pazar Kurma Tasarımı)
+# 🎓 Metin2 Skills: `privateshopbuilder.py` (Pazar Kurma Penceresi)
 
-`privateshopbuilder.py`, oyuncuların kendi kişisel dükkanlarını (Pazar) kurarken açılan, eşyaları yerleştirip fiyat belirledikleri pencerenin tasarım dosyasıdır.
+`privateshopbuilder.py`, oyuncunun kendi pazarını kurarken dükkan ismini belirlediği ve satılacak eşyaları yerleştirdiği arayüzdür.
 
 ---
 
 ## 🔍 Neleri Yönetir?
 
-### 1. Dükkan Adı Girişi (`NameSlot` / `NameLine`)
-Pazarın başlığının yazılacağı metin kutusunu yönetir. Maksimum 25 karakter sınırı vardır (`input_limit: 25`).
+### 1. Dükkan İsmi Girişi (`NameSlot`)
+Oyuncunun pazarın üzerinde görünecek ismi yazdığı alandır.
+- **`input_limit: 25`**: Pazar isminin maksimum 25 karakter olabileceğini belirler.
+- **`NameLine`**: Yazılan metni tutan `text` (aslında kod tarafında `editline` olarak kullanılır) kontrolüdür.
 
-### 2. Eşya Izgarası (`ItemSlot`)
-Satışa konulacak eşyaların yerleştirildiği 5x8 (40 slot) boyutunda bir `grid_table` alanını belirler. NPC market ile aynı boyuttadır.
+### 2. Satış Izgarası (`ItemSlot`)
+Envanterden sürüklenen eşyaların pazar masasına konulduğu 5x8 boyutundaki alandır.
+- **`x_count: 5`, `y_count: 8`**: Toplam 40 slotluk bir dükkan kapasitesi sağlar.
 
-### 3. İşlem Butonları (`OkButton` / `CloseButton`)
-Pazarı açmayı onaylayan veya işlemi iptal eden butonların konumlarını yönetir.
-
-### 4. Boyut Hesaplaması
-Pencerenin yüksekliği `328 + 26` olarak hesaplanmıştır. Ekstra 26 piksel, dükkan ismi giriş alanı için ayrılmıştır.
+### 3. Kurma ve İptal Butonları
+- **`OkButton`**: Pazarı kurma işlemini onaylar ve dükkanı açar.
+- **`CloseButton`**: İşlemi iptal eder.
 
 ---
 
 ## 🛠️ Modifikasyon ve Kritik Uyarılar
 
-### ✅ Slot Sayısını Artırma:
-Daha fazla eşya satışa koymak istersen `y_count` değerini artırarak slot sayısını genişletebilirsin. Tabii `height` değerini de buna göre büyütmelisin.
+### ✅ Pazar Kapasitesini Artırma:
+Daha büyük bir pazar (Örn: 80 slot) istiyorsan, `y_count` değerini artırıp pencerenin `height` değerini buna göre büyütmelisin. Ayrıca sunucu tarafında da dükkan paketinin bu kapasiteyi desteklemesi gerekir.
 
-### ✅ İsim Uzunluğu:
-`input_limit` değerini artırarak daha uzun pazar isimleri yazmayı mümkün kılabilirsin. Ancak sunucu tarafının da bu uzunluğu desteklemesi gerekir.
-
-### ⚠️ Slot Başlangıç İndeksi:
-`start_index: 0` değeri, bu slotların envanterdeki slotlardan bağımsız olduğunu gösterir. Bunu değiştirmek eşyaların yanlış yerlere konulmasına neden olabilir.
+### ⚠️ Fiyat Belirleme:
+Eşyalar bu masaya sürüklendiğinde, `root/uiprivateshopbuilder.py` tarafından bir fiyat giriş penceresi (`inputdialog`) tetiklenir. Eşyaların fiyatları bu pencerede saklanmaz, sadece görselleri saklanır.
 
 ---
 
-## 📉 privateshopbuilder.py Yapısı
+## 📉 privateshopbuilder.py Tasarım Hiyerarşisi
 ```mermaid
 graph TD
-    A[PrivateShopBuilder: 184x354] --> B[Board: Ana Çerçeve]
-    B --> C[TitleBar: Kişisel Dükkan]
-    B --> D[NameSlot: Dükkan Adı Girişi]
-    B --> E[ItemSlot: 5x8 Eşya Izgarası]
-    B --> F[OkButton: Pazarı Aç]
-    B --> G[CloseButton: İptal]
+    A[PrivateShopBuilder] --> B[Board: Ana Kasa]
+    B --> C[NameSlot: Dükkan İsmi Yazma Alanı]
+    B --> D[ItemSlot: 5x8 Satış Izgarası]
+    B --> E[Buttons: Tamam ve Kapat]
 ```
 
 ---
 
-**Sonuç:** `privateshopbuilder.py`, oyuncuların "Esnaf" olmasını sağlayan arayüzdür. Oyun ekonomisinin temel taşlarından biridir.
+**Veri Akışı:** `Oyuncu Girdisi` -> `root/uiprivateshopbuilder.py` -> `Server (Build Shop Packet)`.
