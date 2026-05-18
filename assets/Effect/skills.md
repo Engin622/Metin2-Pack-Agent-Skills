@@ -1,46 +1,39 @@
-# 🎓 Metin2 Skills: `Effect` Klasörü (Parçacık ve Beceri Efektleri)
+# 🎓 Metin2 Skills: `Effect` (Görsel Efektler ve Partiküller)
 
-`Effect` klasörü, oyundaki büyülerin, vuruş efektlerinin, parlamaların ve çevresel animasyonların (Örn: Şelale akıntısı) görsel mantığını barındıran `.mse` (Motion Script Effect) dosyalarını içerir.
-
----
-
-## 🔍 Neleri Yönetir?
-
-### 1. `.mse` (Motion Script Effect)
-Metin tabanlı bu dosyalar, bir efektin kaç parçacıktan oluşacağını, hangi yöne hareket edeceğini, rengini ve ne kadar süre ekranda kalacağını belirler.
-- **`Group Particles`**: Parçacıkların (ateş, ışık vb.) davranışlarını tanımlar.
-- **`Group Emitter`**: Parçacıkların nereden çıkacağını (Örn: Karakterin eli) belirler.
-
-### 2. `hit/` (Vuruş Efektleri)
-Bir düşmana kılıçla vurduğunuzda veya bir büyü çarptığında çıkan kıvılcımları ve ışıkları yönetir.
-
-### 3. `affect/` (Süreli Etkiler)
-Karakterin üzerinde dönen Hava Kılıcı halkası, kritik vuruş ışığı veya zehirlenme efekti gibi süreli görselleri içerir.
-
-### 4. `monster/` & `monster2/`
-Canavarların özel saldırı efektlerini (Örn: Ejderha nefesi) barındırır.
+`pack/Effect` klasörü; becerilerin (skiller), silah parlamalarının, GM logolarının ve oyundaki diğer tüm hareketli, ışıltılı görsel efektlerin barındığı yerdir.
 
 ---
 
-## 🛠️ Modifikasyon ve Kritik Uyarılar
+## 🔍 İçerisinde Neler Var?
 
-### ✅ Beceri Efektlerini Değiştirme:
-Eğer bir becerinin (Örn: Hamle) daha görkemli görünmesini istiyorsan, ilgili `.mse` dosyası içindeki `Particle Count` veya `Scale` değerlerini artırabilirsin. Ancak çok yüksek değerler oyunun kasmasına (FPS düşüşüne) neden olabilir.
+### 1. `.mse` (Metin2 Special Effect)
+Efektlerin nasıl çalışacağını, hangi görselleri hangi hızda ve yönde fırlatacağını belirleyen metin tabanlı ayar dosyalarıdır.
+- **Kullanım Alanı**: Kılıç çevirme efekti, basma başarılı/başarısız efekti, zırhların etrafındaki dumanlar.
+- **Mantık**: Bir `.mse` dosyası tek başına bir görsel değildir, o sadece bir senaryodur. İçinde "Şu .dds dosyasını al, etrafa saç" gibi komutlar barındırır.
 
-### ⚠️ `.mse` ve `.dds` İlişkisi:
-Her `.mse` dosyası, efektin parçacığı olarak bir resim (`.dds` / `.tga`) kullanır. Eğer efekti değiştirmek istiyorsan hem kodunu (`.mse`) hem de resmini kontrol etmelisin.
+### 2. `.dds` ve `.tga` (Efekt Dokuları)
+Efektlerin ham görselleridir. Örneğin bir ateş topu efekti için küçük bir alev resmi `.dds` formatında saklanır ve `.mse` tarafından çağrılır.
 
 ---
 
-## 📉 Effect Veri Akış Şeması
+## 🛠️ Modifikasyon ve Sık Karşılaşılan Hatalar
+
+### ✅ Yeni Silah Parlaması Eklemek:
+Yeni bir silah parlaması eklemek istiyorsan, `Effect/item/weapon/` dizinine yeni bir `.mse` oluşturmalı ve bu efektin adını `item_proto` (veya sunucu kaynak kodlarında) ilgili silaha bağlamalısın.
+
+### ⚠️ Beyaz Kare (Missing Texture) Hatası:
+Eğer oyunda bir skill kullandığında veya bir silah taktığında etrafında **"beyaz kareler"** uçuşuyorsa, bu `.mse` dosyasının içinde yazan `.dds` veya `.tga` yolunun (path) hatalı olduğu veya o resmin eksik olduğu anlamına gelir.
+
+### ⚠️ Performans Optimizasyonu:
+Çok fazla partikül içeren (Örn: Abartılı kanat efektleri) `.mse` dosyaları, etrafta çok fazla oyuncu olduğunda FPS düşüşlerine (kasmaya) neden olur.
+
+---
+
+## 📉 Effect Klasörü Veri Akışı
 ```mermaid
 graph TD
-    A[root: PlaySkillEffect] --> B{Effect/*.mse}
-    B -- Yükle Texture --> C[Effect/Texture.dds]
-    B -- Parçacık Hesapla --> D[3D Particle Engine]
-    D --> E[Oyun Ekranı: Parlayan Beceri]
+    A[Oyun Motoru: Kılıç Çevirme Kullanıldı] --> B[Skill Proto: Effect ID]
+    B --> C[pack/Effect/skill/warrior/palbang_4.mse]
+    C -- Oku: Senaryo --> D[pack/Effect/skill/warrior/alev.dds]
+    D --> E[Ekranda Animasyon Olarak Renderla]
 ```
-
----
-
-**Veri Akışı:** `root/playersettingmodule.py` -> `pack/Effect/*.mse` -> `Oyun Motoru (Particle System)`.
