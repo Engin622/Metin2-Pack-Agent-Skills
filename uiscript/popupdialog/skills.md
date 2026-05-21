@@ -1,34 +1,38 @@
-# 🎓 Metin2 Skills: `popupdialog.py` (Bilgi Pop-up Penceresi)
+# 🎓 Metin2 Skills: `popupdialog.py` (Uyarı Mesajı Tasarımı)
 
-`popupdialog.py`, oyuncuya bir bilgi vermek (Örn: "Envanter dolu") veya bir hata göstermek için kullanılan, sadece tek bir "Tamam" butonu içeren penceredir.
+`popupdialog.py`, oyunda hata mesajları, bilgilendirmeler veya sistem bildirimleri ("Envanterin dolu!", "Bu eşyayı kullanamazsın") için kullanılan, ortasında yazı ve altında tek bir "Tamam" butonu olan genel uyarı penceresidir.
 
 ---
 
 ## 🔍 Neleri Yönetir?
 
-### 1. Bilgi Mesajı (`message`)
-Ekranda gösterilecek uyarı veya bilgi yazısını barındırır.
+### 1. Dinamik Mesaj Metni (`message`)
+Uyarı metnini barındırır. Metin her zaman yatay (`text_horizontal_align`) ve dikey (`text_vertical_align`) olarak tam ortalanır. Oyun kodları buradaki `message` nesnesine dışarıdan metin yazar.
 
-### 2. Tek Buton (`accept`)
-İşlemi onaylayıp pencereyi kapatan "Tamam" (`OK`) butonudur. `horizontal_align : center` ile pencerenin tam ortasına yerleştirilmiştir.
+### 2. Onay Butonu (`accept`)
+Tek fonksiyonu pencereyi kapatmak veya bildirimi onaylamak olan "Tamam" (OK) butonunu içerir. Bu buton da pencerenin altına ortalanmıştır (`horizontal_align : center`).
+
+### 3. Ekranın Ortalanması
+`x` ve `y` koordinatlarında `SCREEN_WIDTH/2 - 250` gibi formüller kullanılarak bu küçük pencerenin her çözünürlükte ekranın tam merkezine oturması sağlanır.
 
 ---
 
 ## 🛠️ Modifikasyon ve Kritik Uyarılar
 
-### ✅ Otomatik Boyut:
-Pencere boyutları genellikle sabittir (`280x105`). Eğer mesajlar çok uzunsa ve sığmıyorsa `width` değerini artırıp `message` kısmındaki `limit_width` (Kod tarafında) ayarlarını kontrol etmelisin.
+### ✅ Uzun Mesajlar:
+Eğer sunucunda çok uzun uyarı metinleri yazdıracaksan, pencerenin `height` ve `width` değerlerini artırmalısın, aksi halde metin çerçevenin dışına taşar veya kesilir.
+
+### ⚠️ questiondialog.py ile Farkı:
+`questiondialog.py` oyuncuya bir seçenek sunarken (Evet/Hayır), `popupdialog.py` sadece bilgi verir (Tamam). Sadece okuyup geçilecek bilgiler için daima bu pencere kullanılır.
 
 ---
 
-## 📉 popupdialog.py Tasarım Hiyerarşisi
+## 📉 popupdialog.py Yapısı
 ```mermaid
 graph TD
-    A[PopupDialog] --> B[Board: Ana Panel]
-    B --> C[Message: Bilgi Yazısı]
-    B --> D[Accept: Tamam Butonu]
+    A[PopupDialog] --> B[Board: Ortalanmış Çerçeve]
+    B --> C[Message: Dinamik Uyarı Metni]
+    B --> D[AcceptButton: Tamam Butonu]
 ```
 
----
-
-**Veri Akışı:** `root/uicommon.py` -> `popupdialog.py` -> Ekran.
+**Sonuç:** `popupdialog.py`, oyunun "Trafik İşareti"dir. Oyuncuyu bilgilendirmek ve kuralları hatırlatmak için kullanılır.

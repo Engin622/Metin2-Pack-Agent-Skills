@@ -1,40 +1,29 @@
-# 🎓 Metin2 Skills: `skillpointresetdialog.py` (Beceri Sıfırlama Onayı)
+# 🎓 Metin2 Skills: `skillpointresetdialog.py` (Beceri Puanı Sıfırlama)
 
-`skillpointresetdialog.py`, oyuncu bir "Beceri Sıfırlama Kağıdı" kullandığında veya bir NPC üzerinden tek bir beceriyi sıfırlamak istediğinde açılan küçük onay penceresidir.
+`skillpointresetdialog.py`, Yaşlı Kadın NPC'sine veya statü sıfırlama eşyalarına tıklandığında açılan, statü/beceri puanlarının sıfırlanmasını onaylayan penceredir.
 
 ---
 
 ## 🔍 Neleri Yönetir?
 
-### 1. Sıfırlama Butonu (`reset_button`)
-Seçili olan becerinin puanlarını geri alıp, puanları tekrar dağıtılabilir hale getiren ana işlemdir.
+### 1. İnce Çerçeve (`thinboard`)
+Tipik NPC/Görev pencereleri gibi arka planında şeffaf ince bir çerçeve kullanılır.
 
-### 2. İptal Butonu (`cancel_button`)
-İşlemi gerçekleştirmeden pencereyi kapatır.
-
-### 3. İnce Panel (`thinboard`)
-Pencere, ekranın tam ortasında (`SCREEN_WIDTH/2 - 100`) açılan ve yer kaplamayan bir `thinboard` yapısına sahiptir.
+### 2. Onay Butonları
+- **`reset_button`**: Sıfırlama işlemini kabul et.
+- **`cancel_button`**: İşlemden vazgeç.
 
 ---
 
 ## 🛠️ Modifikasyon ve Kritik Uyarılar
 
-### ✅ Buton Metinleri:
-Dosya içindeki garip karakterler (`Џג`) aslında yerel dil dosyalarındaki (Örn: `uiScriptLocale.OK`) karşılıkları temsil eder. Modifiye ederken bu metinleri doğrudan `uiScriptLocale` değişkenlerine bağlamak daha temiz bir yapı sağlar.
+### ⚠️ Kodlama (Encoding) Sorunu:
+Dosya içerisinde buton isimleri (Örn: `"Џג "`) bozuk Korece karakterler olarak görünüyor. Bu aslında `uiScriptLocale` üzerinden çekilmek yerine doğrudan `.py` içine yazıldığı için Metin2 client'ında bazen bozuk karakterlere yol açabilir. Çeviri sistemi (`locale`) ile değiştirmek en iyisidir.
 
-### ⚠️ Kod Bağlantısı:
-Bu pencere tetiklendiğinde hangi becerinin sıfırlanacağı bilgisi `root/uipointreset.py` tarafından yönetilir.
-
----
-
-## 📉 skillpointresetdialog.py Tasarım Hiyerarşisi
+## 📉 skillpointresetdialog.py Yapısı
 ```mermaid
 graph TD
-    A[SkillResetDialog] --> B[Board: Thinboard]
-    B --> C[ResetButton: Sıfırla]
-    B --> D[CancelButton: İptal]
+    A[SkillResetDialog] --> B[ThinBoard]
+    B --> C[Reset Button]
+    B --> D[Cancel Button]
 ```
-
----
-
-**Veri Akışı:** `Eşya Kullanımı` -> `root/uipointreset.py` -> `skillpointresetdialog.py` -> `Server (Reset Packet)`.

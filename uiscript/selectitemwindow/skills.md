@@ -1,43 +1,29 @@
-# 🎓 Metin2 Skills: `selectitemwindow.py` (Eşya Seçme Penceresi)
+# 🎓 Metin2 Skills: `selectitemwindow.py` (Metin Taşı/Eşya Seçim Tasarımı)
 
-`selectitemwindow.py`, özellikle eşyalara taş ekleme (Metin taşı) veya belirli bir işlem için envanterden bir eşya seçilmesi gerektiğinde açılan yardımcı panelin tasarımıdır.
+`selectitemwindow.py`, bir silaha "Taş Ekleme" veya benzeri durumlarda, envanterdeki uygun taşların (veya eşyaların) listelendiği ayrı bir eşya seçim arayüzünün tasarımıdır.
 
 ---
 
 ## 🔍 Neleri Yönetir?
 
-### 1. Izgara Yapısı (`grid_table`)
-Pencere içindeki eşya slotlarını bir tablo şeklinde yönetir.
-- **`x_count: 5` / `y_count: 8`**: Toplamda 40 slotluk (5x8) bir alan oluşturur.
-- **`x_step: 32` / `y_step: 32`**: Her bir slotun Metin2 standartı olan 32x32 piksel boyutunda olduğunu belirler.
+### 1. Eşya Izgarası (`ItemSlot`)
+Tipik envanter veya depo pazar ızgarasıyla aynı yapıyı (`5x8`) kullanır. Taş Ekleme işlemine tıklandığında envanterdeki ruh taşları filtrelenerek bu ızgaraya yerleştirilir.
 
-### 2. Başlık Dinamiği (`TitleName`)
-- **`text`**: Varsayılan olarak `uiScriptLocale.SELECT_METIN_STONE_TITLE` (Metin Taşı Seç) metnini kullansa da, bu pencere çok amaçlıdır ve kod tarafında başlığı değiştirilebilir.
-
-### 3. Pencere Tarzı (`movable`, `float`)
-Pencerenin fareyle sürüklenebilir olduğunu ve diğer pencerelerin üzerinde (float) kalacağını belirtir.
+### 2. Başlık ve Kapatma
+Seçim işlemi iptal edilmek istendiğinde kullanılacak `ExitButton` ve pencerenin amacını belirten dinamik başlık çubuğu (`TitleBar`) bulunur.
 
 ---
 
 ## 🛠️ Modifikasyon ve Kritik Uyarılar
 
-### ✅ Slot Sayısını Artırma:
-Daha fazla eşya gösterilmesi gerekiyorsa `y_count` değerini artırıp `height` (yükseklik) değerini de buna göre (her bir slot için +32px) güncellemelisiniz.
+### ✅ Izgara Boyutu:
+Eğer `5x8` olan bu ızgara kapasitesini artırmak istersen `y_count` değerini büyütüp pencere yüksekliğini artırabilirsin. Ancak çoğu oyuncu aynı anda 40'tan fazla taşı üzerinde taşımaz.
 
-### ⚠️ Slot Arkaplanı:
-`Slot_Base.sub` görseli slotların arkasındaki gri kutucukları oluşturur. Eğer özel bir tasarım kullanıyorsan bu yolu değiştirebilirsin.
-
----
-
-## 📉 selectitemwindow.py Tasarım Hiyerarşisi
+## 📉 selectitemwindow.py Yapısı
 ```mermaid
 graph TD
-    A[SelectItemWindow: Seçim Paneli] --> B[board: Arka Katman]
-    B --> C[TitleBar: Başlık Çubuğu]
-    B --> D[ItemSlot: 5x8 Slot Izgarası]
-    B --> E[ExitButton: Kapat Butonu]
+    A[SelectItemWindow: 184x332] --> B[Board]
+    B --> C[TitleBar: Metin Taşı Seçimi]
+    B --> D[ItemSlot: 5x8 Eşya Izgarası]
+    B --> E[ExitButton: Kapat]
 ```
-
----
-
-**Veri Akışı:** `ui.py (Grid Logic)` -> `uiselectitem.py` (Logic) -> `selectitemwindow.py` (Izgara Tasarımı) -> Ekran.

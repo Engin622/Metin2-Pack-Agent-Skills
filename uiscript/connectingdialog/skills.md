@@ -1,37 +1,38 @@
-# 🎓 Metin2 Skills: `connectingdialog.py` (Sunucuya Bağlanılıyor)
+# 🎓 Metin2 Skills: `connectingdialog.py` (Bağlantı Bekleme Ekranı)
 
-`connectingdialog.py`, kullanıcı giriş bilgilerini yazıp "Giriş" butonuna bastığında ekranda beliren "Sunucuya Bağlanılıyor..." yazısını içeren geçici bilgilendirme penceresidir.
+`connectingdialog.py`, karakteri seçip "Başla" butonuna bastığında veya sunucuya ilk giriş yaparken ekranda beliren "Sunucuya bağlanılıyor..." ve geriye doğru sayan mesaj kutusunun tasarım dosyasıdır.
 
 ---
 
 ## 🔍 Neleri Yönetir?
 
 ### 1. Durum Mesajı (`message`)
-Bağlantı sürecinin o anki durumunu (`LOGIN_CONNECTING`) gösterir.
+"Sunucuya bağlanılıyor..." gibi mevcut durum bilgisini gösteren statik metin alanıdır.
 
-### 2. Geri Sayım / Ek Mesaj (`countdown_message`)
-Eğer bağlantı sırasında bir bekleme süresi varsa veya ek bilgi verilecekse kullanılan ikinci metin alanıdır.
+### 2. Geri Sayım Bilgisi (`countdown_message`)
+Bağlantının kurulması veya iptal edilmesi için geriye doğru sayan (veya saniye tutan) dinamik metin alanıdır.
 
-### 3. Sade Tasarım
-Bu pencerede herhangi bir buton bulunmaz. İşlem başarılı olursa pencere kapanır ve karakter seçimine geçilir; başarısız olursa bir hata pop-up'ı açılır.
+### 3. Butonsuz Yapı
+Bu ekranda herhangi bir "İptal" veya "Tamam" butonu yoktur. Bu, oyuncunun işlem sürerken bağlantıyı zorla kesmesini önlemek için bilerek yapılmış bir tasarımdır.
 
 ---
 
 ## 🛠️ Modifikasyon ve Kritik Uyarılar
 
-### ✅ Görsel Değişimi:
-Bu pencere `board` tipindedir. Eğer giriş ekranına özel, çerçevesiz veya daha şeffaf bir görünüm istiyorsan `type: "window"` yaparak arka plan görselini manuel atayabilirsin.
+### ✅ Özel Bekleme Görselleri:
+Pencere çerçevesinin içine dönen bir kum saati veya yükleme (loading) animasyonu eklemek istersen, `ani_image` nesnesi kullanarak pencereyi hareketlendirebilirsin.
+
+### ⚠️ Yanlış Kullanım:
+Bu dialog, sunucu ile client arasındaki "Handshake" (el sıkışma) işlemi bitene kadar ekranda kalır. Bu arayüzün kodu veya pozisyonu bozulursa oyuncu oyuna bağlandığını anlayamayabilir.
 
 ---
 
-## 📉 connectingdialog.py Tasarım Hiyerarşisi
+## 📉 connectingdialog.py Yapısı
 ```mermaid
 graph TD
-    A[QuestionDialog: Bağlantı Paneli] --> B[Board: Standart Çerçeve]
+    A[ConnectingDialog] --> B[Board: Küçük Çerçeve]
     B --> C[Message: "Bağlanılıyor..."]
-    B --> D[CountdownMessage: Bekleme Bilgisi]
+    B --> D[CountdownMessage: Geri Sayım]
 ```
 
----
-
-**Veri Akışı:** `root/intrologin.py` -> `connectingdialog.py` -> `networkmodule.py`.
+**Sonuç:** `connectingdialog.py`, oyun motorunun arka planda dünyayı yüklerken oyuncuyu ekranda tuttuğu "Sabır Noktası"dır.

@@ -1,41 +1,29 @@
-# 🎓 Metin2 Skills: `musiclistwindow.py` (Müzik Listesi)
+# 🎓 Metin2 Skills: `musiclistwindow.py` (Oyun İçi Müzik Seçimi)
 
-`musiclistwindow.py`, oyun içinden arka plan müziğini (BGM) değiştirmek istediğinizde açılan ve `BGM/` klasöründeki müzikleri listeleyen penceredir.
+`musiclistwindow.py`, sistem seçeneklerinden "Arka Plan Müziğini Değiştir" butonuna basıldığında açılan ve `.mp3` dosyalarını listeleyen pencerenin tasarımıdır.
 
 ---
 
 ## 🔍 Neleri Yönetir?
 
-### 1. Dosya Listesi ve Kaydırma (`ScrollBar`)
-Müzik dosyalarının (`.mp3`) listelendiği alanı ve bu listede gezinmeyi sağlayan kaydırma çubuğunu barındırır.
+### 1. Ortak Mimari
+Dosya yapısı, birebir `marklistwindow.py` ile aynıdır. Hatta kopyala-yapıştır yapıldığı için "Yenile" butonunun metni bile yanlışlıkla `uiScriptLocale.MARKLIST_REFRESH` (Lonca Simgesi Yenile) olarak kalmıştır!
 
-### 2. Yenileme Butonu (`refresh`)
-Klasöre yeni bir müzik eklendiğinde listeyi güncelleyen "Yenile" butonudur.
-
-### 3. Seçim Butonları (`ok`, `cancel`)
-Seçilen müziği oynatır veya işlemi iptal eder.
+### 2. Müzik Dosyaları
+`BGM/` klasörü içindeki tüm müzikleri listeler ve seçildiğinde o müziği oynatır.
 
 ---
 
 ## 🛠️ Modifikasyon ve Kritik Uyarılar
 
-### ✅ Listeyi Genişletme:
-Eğer çok fazla müziğin varsa, `height` değerini artırarak listenin daha fazla dosyayı aynı anda göstermesini sağlayabilirsin.
+### ✅ Dil Dosyası Hatası:
+`refresh` butonundaki `MARKLIST_REFRESH` metnini `MUSICLIST_REFRESH` olarak düzeltmek, UI tasarımında daha profesyonel bir görünüm sunar.
 
-### ⚠️ BGM Klasörü:
-Bu pencere sadece `pack/BGM` klasöründeki veya istemci ana dizinindeki `BGM/` klasöründeki dosyaları okur. Dosya formatı mutlaka `.mp3` olmalıdır.
-
----
-
-## 📉 musiclistwindow.py Tasarım Hiyerarşisi
+## 📉 musiclistwindow.py Yapısı
 ```mermaid
 graph TD
-    A[MusicListWindow] --> B[Board: Başlıklı Çerçeve]
-    B --> C[ScrollBar: Liste Kaydırma]
-    B --> D[ListBox: Dinamik Müzik Listesi]
-    B --> E[Buttons: Tamam, İptal, Yenile]
+    A[MusicListWindow] --> B[Board: Ana Panel]
+    B --> C[ScrollBar: Kaydırma Çubuğu]
+    B --> D[ListArea: Müzik Listesi]
+    B --> E[Buttons: Çal / İptal / Yenile]
 ```
-
----
-
-**Veri Akışı:** `pack/BGM` -> `root/uiselectmusic.py` -> `musiclistwindow.py` -> Ekran.

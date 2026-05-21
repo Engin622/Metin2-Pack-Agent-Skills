@@ -1,46 +1,42 @@
-# 🎓 Metin2 Skills: `gamewindow.py` (Genel Oyun Ekranı Butonları)
+# 🎓 Metin2 Skills: `gamewindow.py` (Ana Oyun Arayüzü İkonları)
 
-`gamewindow.py`, oyun ekranında (HUD üzerinde değil, doğrudan dünya üzerinde) yüzen ve oyuncuya çeşitli bildirimler/kısayollar sunan "büyük artı" butonlarını yöneten dosyadır.
+`gamewindow.py`, oyun esnasında ekranın kenarlarında beliren büyük uyarı ve bildirim ikonlarının (Örn: Statü verebilirsin, Görev geldi, Yeni beceri vb.) tasarım dosyasıdır.
 
 ---
 
 ## 🔍 Neleri Yönetir?
 
-### 1. Statü ve Beceri Bildirimleri
-Oyuncu seviye atladığında veya statü/beceri puanı kazandığında ekranın sol veya sağ alt köşesinde beliren butonlardır:
-- **`StatusPlusButton`**: "Statü Artır" uyarısı verir.
-- **`SkillPlusButton`**: "Beceri Puanı Dağıt" uyarısı verir.
+### 1. Artı (Plus) Butonları
+Karakter seviye atladığında veya yeni görevler geldiğinde ekranın sol altında ve sağ altında çıkan şu butonları yönetir:
+- **`StatusPlusButton`**: Statü puanı (STR, VIT vb.) verebileceğini gösteren "Artı" ikonu.
+- **`SkillPlusButton`**: Beceri (Skill) puanı verebileceğini gösteren ikon.
+- **`QuestButton`**: Yeni veya tamamlanmış bir görev (Parşömen) olduğunda çıkar.
+- **`HelpButton`**: Yeni oyuncular için yardım bildirimleri.
 
-### 2. Görev ve Yardım Butonları
-- **`QuestButton`**: Yeni bir görev geldiğinde yanıp sönen butondur.
-- **`HelpButton`**: Oyun içi yardım rehberini açar.
-
-### 3. Özel Durum Butonları
-- **`ExitObserver`**: Birini izlerken (Spectator mode) izleme modundan çıkmayı sağlar.
-- **`BuildGuildBuilding`**: Lonca arazisindeyken bina inşa menüsünü tetikler.
+### 2. Tıklanamaz Arka Plan
+Bu pencerenin `style` değeri `("not_pick",)` olarak ayarlanmıştır. Bu sayede bu devasa pencere tüm ekranı kaplasa (`SCREEN_WIDTH`, `SCREEN_HEIGHT`) bile oyuncunun haritaya veya canavarlara tıklamasını engellemez; sadece butonlar tıklanabilir olur.
 
 ---
 
 ## 🛠️ Modifikasyon ve Kritik Uyarılar
 
-### ✅ Buton Görsellerini Özelleştirme:
-Bu butonlar standart olarak `btn_bigplus_up.sub` görselini kullanır. Eğer daha modern veya farklı bir bildirim simgesi (Örn: Ünlem işareti) istersen, buradaki görsel yollarını güncelleyebilirsin.
+### ✅ Uyarı Konumları:
+`SCREEN_HEIGHT-100` veya `SCREEN_WIDTH-50-32` gibi matematiksel formüller, bu butonların her çözünürlükte ekranın sağ veya sol alt köşelerinde (görev çubuğunun hemen üstünde) sabit kalmasını sağlar.
 
-### ⚠️ `not_pick` Stili:
-Bu pencere `style : ("not_pick",)` parametresine sahiptir. Bu, farenin bu pencerenin boş alanlarına tıkladığında oyun dünyasına (Hareket etme, saldırma) engel olmamasını sağlar. Sadece butonların üzerine tıklandığında etkileşim gerçekleşir.
+### ⚠️ Görsel Senkronizasyonu:
+Buradaki butonların animasyonları (`btn_bigplus_up/over/down.sub`) oyunun çok eski sürümünden beri aynıdır. Modern bir arayüz yaparken bu büyük ve kaba butonları daha şık bir "Bildirim (Notification)" sistemine dönüştürebilirsin.
 
 ---
 
-## 📉 gamewindow.py Tasarım Hiyerarşisi
+## 📉 gamewindow.py İkon Yerleşimi
 ```mermaid
 graph TD
-    A[GameWindow: Tüm Ekran] --> B[HelpButton: Sol Alt]
-    A --> C[QuestButton: Sağ Alt]
-    A --> D[StatusPlusButton: Sol Orta-Alt]
-    A --> E[SkillPlusButton: Sağ Orta-Alt]
-    A --> F[ContextButtons: İzleme Modu/İnşaat]
+    A[GameWindow: Şeffaf Tam Ekran] --> B[Sol Alt Köşe]
+    B --> B1[HelpButton: Yardım]
+    B --> B2[StatusPlusButton: Statü Artısı]
+    A --> C[Sağ Alt Köşe]
+    C --> C1[QuestButton: Görev Parşömeni]
+    C --> C2[SkillPlusButton: Beceri Artısı]
 ```
 
----
-
-**Veri Akışı:** `Server (Notification)` -> `root/game.py` -> `gamewindow.py` -> Ekran.
+**Sonuç:** `gamewindow.py`, oyuncuyu karakterinin gelişimi hakkında sürekli bilgilendiren ve onu menülere (C, V vb.) yönlendiren "Bildirim Sistemi"dir.

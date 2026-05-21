@@ -1,40 +1,28 @@
-# 🎓 Metin2 Skills: `webwindow.py` (Nesne Market - Web Tarayıcısı)
+# 🎓 Metin2 Skills: `webwindow.py` (Oyun İçi Tarayıcı)
 
-`webwindow.py`, oyun içinde açılan Nesne Market (Item Shop) veya anketler gibi web tabanlı içerikleri görüntüleyen pencerenin dış çerçevesidir.
+`webwindow.py`, oyun içerisinde bir web sayfasını açmak için (Örn: Nesne Market, Duyurular, Şifre Değiştirme) kullanılan gömülü tarayıcı arayüzünün tasarımıdır.
 
 ---
 
 ## 🔍 Neleri Yönetir?
 
-### 1. Pencere Boyutları (`WEB_WIDTH`, `WEB_HEIGHT`)
-Metin2'nin dahili tarayıcısının (Internet Explorer tabanlı) hangi boyutlarda (Genellikle 640x480) görüntüleneceğini belirler.
+### 1. Pencere Boyutları
+İçeriğin rahat okunabilmesi için varsayılan olarak `640x480` (`WEB_WIDTH` ve `WEB_HEIGHT`) boyutlarında bir alan ayırır. Ancak Python tarafından bu boyutlar dinamik olarak büyütülüp küçültülebilir.
 
-### 2. Başlık Barı (`TitleBar`)
-Pencerenin en üstünde yer alan ve "Nesne Market" (`SYSTEM_MALL`) başlığını taşıyan alanı yönetir.
-
-### 3. Kabuk Yapısı (Shell)
-Bu dosya sadece bir "çerçeve"dir. Tarayıcının kendisi (Web sayfası), `root/uiweb.py` üzerinden bu pencerenin içine gömülür (Embed).
+### 2. İsim Karmaşası (`name : "MallWindow"`)
+Burada ilginç bir detay var: `name` parametresi `"MallWindow"` olarak bırakılmış. Daha önceki `mallwindow.py` dosyası ile aynı isme sahip. Bu, motorun web sayfalarını genellikle nesne market için kullanmasından kaynaklanan klasik bir tasarım kodlamasıdır.
 
 ---
 
 ## 🛠️ Modifikasyon ve Kritik Uyarılar
 
-### ✅ Tam Ekran Web:
-Eğer Nesne Marketin daha büyük görünmesini istiyorsan `WEB_WIDTH` ve `WEB_HEIGHT` değerlerini artırabilirsin. Ancak web sayfasının bu yeni çözünürlüğe (Responsive) uyumlu olması gerekir.
+### ⚠️ Web Çekirdeği:
+Bu dosya sadece çerçevenin dış görünümünü (Pencere sınırı ve Başlık) belirler. İçeriğe web sitesinin render edilmesi, oyun motorunun C++ tarafındaki tarayıcı kütüphanesine (genellikle çok eski bir IE/Webkit sürümü) bağlıdır.
 
-### ⚠️ IE Bağımlılığı:
-Metin2 motoru, bu pencere içinde Windows'un yüklü olan Internet Explorer motorunu kullanır. Eğer oyuncunun bilgisayarında IE ayarları bozuksa bu pencere boş veya hatalı görünebilir.
-
----
-
-## 📉 webwindow.py Tasarım Hiyerarşisi
+## 📉 webwindow.py Yapısı
 ```mermaid
 graph TD
-    A[WebWindow: Ana Konteyner] --> B[Board: Arka Panel]
+    A[WebWindow] --> B[Board: 660x520]
     B --> C[TitleBar: Başlık]
-    B --> D[Tarayıcı Motoru: Kod ile Gömülür]
+    B --> D[Tarayıcı İçeriği C++'dan Gelir]
 ```
-
----
-
-**Veri Akışı:** `root/uiweb.py` -> `webwindow.py` -> `OS (IE Engine)`.

@@ -1,44 +1,29 @@
-# 🎓 Metin2 Skills: `pickmoneydialog.py` (Miktar Seçimi - Ayırma)
+# 🎓 Metin2 Skills: `pickmoneydialog.py` (Yang/Para Ayırma Tasarımı)
 
-`pickmoneydialog.py`, bir eşya yığınını (Örn: 200 adet Kırmızı İksir) bölmek veya belirli bir miktar Yang ayırmak için kullanılan sayı giriş penceresidir.
+`pickmoneydialog.py`, envanterdeki Yang (oyun parası) miktarına tıklandığında veya yere para atılmak istendiğinde açılan ve "Ne kadar ayırmak istiyorsun?" diye soran arayüzdür.
 
 ---
 
 ## 🔍 Neleri Yönetir?
 
-### 1. Sayı Giriş Alanı (`money_value`)
-Oyuncunun ayırmak istediği miktarı yazdığı alandır.
-- **`only_number : 1`**: Sadece rakam girilmesine izin verir.
-- **`input_limit : 6`**: Genellikle 999.999'a kadar olan eşya yığınları için yeterli bir sınırdır.
+### 1. Sadece Sayı Girişi (`only_number : 1`)
+Oyuncunun harf veya özel karakter girmesini donanımsal olarak engeller. Sadece rakamlara izin verir.
 
-### 2. Maksimum Değer Göstergesi (`max_value`)
-Giriş kutusunun yanında, yığında toplam kaç adet eşya olduğunu gösteren (`/ 999999` gibi) bilgilendirme yazısıdır.
-
-### 3. Kontrol Butonları
-Belirtilen miktarı ayırmak (`OK`) veya vazgeçmek (`CANCEL`) için kullanılır.
+### 2. Maksimum Miktar Önizlemesi (`max_value`)
+Giriş kutusunun hemen yanında, oyuncunun envanterinde sahip olduğu toplam parayı referans olarak gösterir (Örn: `/ 999999`). Bu metin Python tarafında oyuncunun bakiyesine göre güncellenir.
 
 ---
 
 ## 🛠️ Modifikasyon ve Kritik Uyarılar
 
-### ✅ Otomatik Maksimum Sayı:
-Oyuncu pencereyi açtığında genellikle kutu içinde `1` yazar. Eğer varsayılan olarak maksimum sayının yazılı gelmesini istiyorsan, bu değişiklik `root/uipickmoney.py` içindeki `Open` fonksiyonunda yapılmalıdır.
+### ✅ Yang Sınırı (Limit):
+Standart Metin2'de bu penceredeki `input_limit` genellikle 6 veya 9'dur (Maksimum 999.999.999 Yang). Eğer sunucun "Trilyonluk" (15 haneli) paraları destekliyorsa, bu sınırı kesinlikle artırmalısın, yoksa oyuncular paralarını transfer edemez.
 
-### ⚠️ Limit Senkronizasyonu:
-Buraya yazılan sayı, `max_value` değerinden büyük olamaz. Bu kontrol `root` tarafında dinamik olarak yapılır.
-
----
-
-## 📉 pickmoneydialog.py Tasarım Hiyerarşisi
+## 📉 pickmoneydialog.py Yapısı
 ```mermaid
 graph TD
-    A[PickMoneyDialog] --> B[Board: Başlıklı Çerçeve]
-    B --> C[MoneySlot: Sayı Girişi ve Limit Yazısı]
-    C --> D[MoneyValue: EditLine - Sadece Rakam]
-    C --> E[MaxValue: Statik Limit Metni]
-    B --> F[Accept / Cancel Butonları]
+    A[PickMoneyDialog] --> B[Board]
+    B --> C[MoneyValue: Sadece Sayı Girişi]
+    B --> D[MaxValue: Toplam Para Gösterimi]
+    B --> E[Ok / Cancel Butonları]
 ```
-
----
-
-**Veri Akışı:** `Envanter (Shift + Click)` -> `root/uipickmoney.py` -> `pickmoneydialog.py` -> Ekran.

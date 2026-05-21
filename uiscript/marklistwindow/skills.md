@@ -1,41 +1,31 @@
 # 🎓 Metin2 Skills: `marklistwindow.py` (Lonca Simgesi Seçimi)
 
-`marklistwindow.py`, lonca liderinin lonca arazisine veya lonca isminin yanına koyacağı simgeyi (Logo) seçtiği penceredir.
+`marklistwindow.py`, lonca başkanlarının lonca simgesi (Mark) belirlemek için tıkladıklarında açılan, mevcut simgelerin listelendiği pencerenin tasarımıdır.
 
 ---
 
 ## 🔍 Neleri Yönetir?
 
-### 1. Simge Listesi
-`upload/` klasöründeki 16x12 boyutundaki `.tga` veya `.jpg` dosyalarını listeler.
+### 1. Simge Listesi ve Kaydırma (`ScrollBar`)
+`upload/` klasörüne atılan `16x12` piksel boyutundaki görsellerin listeleneceği bir alanı ve bu alanda kaydırmayı sağlayan barı yönetir.
 
-### 2. Yenileme Butonu (`refresh`)
-Yeni bir simge yüklendiğinde listeyi anlık olarak günceller.
-
-### 3. Kaydırma Çubuğu (`ScrollBar`)
-Çok sayıda simge arasından seçim yapmayı kolaylaştırır.
+### 2. İşlem Butonları
+- **`ok`**: Seçilen simgeyi onaylar.
+- **`cancel`**: İşlemi iptal eder.
+- **`refresh`**: Listeyi yeniler (oyuncu klasöre yeni simge attığında oyunu kapatmadan görmesini sağlar).
 
 ---
 
 ## 🛠️ Modifikasyon ve Kritik Uyarılar
 
-### ✅ Yeni Simgeler Ekleme:
-Kendi sunucuna özel lonca simgeleri eklemek istiyorsan, bu simgeleri istemcinin `upload/` klasörüne atmalısın. Pencere bu klasörü otomatik olarak tarar.
+### ⚠️ Boyutlar ve Kapasite:
+Lonca simgelerinin boyutları sabittir (`16x12`). Bu pencerenin boyutu (`170x300`) liste görünümü içindir; eğer listelemeyi kare şeklinde yapmak istersen Python tarafında da UI değişikliği gerekir.
 
-### ⚠️ Boyut Sınırı:
-Lonca simgeleri standart olarak **16x12** piksel olmalıdır. Daha büyük veya küçük resimler listede bozuk görünebilir veya sunucu tarafından reddedilebilir.
-
----
-
-## 📉 marklistwindow.py Tasarım Hiyerarşisi
+## 📉 marklistwindow.py Yapısı
 ```mermaid
 graph TD
-    A[MarkListWindow] --> B[Board: Başlık Barı Dahil]
-    B --> C[ScrollBar: Kaydırma]
-    B --> D[ListBox: Simgelerin Listelendiği Alan]
-    B --> E[Buttons: Tamam, İptal, Yenile]
+    A[MarkListWindow] --> B[Board: Ana Panel]
+    B --> C[ScrollBar: Kaydırma Çubuğu]
+    B --> D[ListArea: Simge Listesi]
+    B --> E[Buttons: Onayla / İptal / Yenile]
 ```
-
----
-
-**Veri Akışı:** `İstemci / upload` -> `root/uiuploadmark.py` -> `marklistwindow.py` -> `Server (Logo Upload)`.

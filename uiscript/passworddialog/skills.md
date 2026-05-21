@@ -1,40 +1,29 @@
-# 🎓 Metin2 Skills: `passworddialog.py` (Genel Şifre Girişi)
+# 🎓 Metin2 Skills: `passworddialog.py` (Şifre Giriş Tasarımı)
 
-`passworddialog.py`, oyunda güvenlik gerektiren işlemler (Karakter silme, Depo açma vb.) için kullanılan tek satırlık standart şifre giriş penceresidir.
+`passworddialog.py`, oyuncunun depo şifresi veya karakter silme şifresi gibi gizli bilgiler girmesi gerektiğinde açılan ekranın tasarımıdır.
 
 ---
 
 ## 🔍 Neleri Yönetir?
 
-### 1. Şifre Giriş Alanı (`password_value`)
-Kullanıcının şifresini yazdığı alandır.
-- **`secret_flag : 1`**: Şifrenin ekranda yıldızlarla gizlenmesini sağlar.
-- **`input_limit : 6`**: Genellikle 6 karakter olan güvenlik şifrelerine göre sınırlanmıştır.
+### 1. Gizli Metin Girişi (`secret_flag : 1`)
+`editline` içindeki bu bayrak sayesinde, oyuncunun yazdığı her karakter ekranda yıldız (`*`) olarak görünür. Şifrenin omuz sörfü (omuz arkasından bakma) veya yayınlarda ifşa olmasını engeller.
 
-### 2. Standart Panel Yapısı
-`TitleBar` ve `Accept/Cancel` butonlarıyla birlikte kompakt bir tasarıma sahiptir.
+### 2. Şifre Uzunluğu (`input_limit : 6`)
+Standart depo şifreleri 6 karakterdir. Bu sınır, oyuncunun gereğinden uzun bir şifre girip sunucu tarafında hata almasını veya veritabanında taşma olmasını önler.
 
 ---
 
 ## 🛠️ Modifikasyon ve Kritik Uyarılar
 
-### ✅ Çok Amaçlı Kullanım:
-Bu dosya, `root/uicommon.py` içindeki `PasswordDialog` sınıfı tarafından farklı başlıklarla çağrılabilir. Eğer sadece depo için değil, başka bir sistem için de şifre istiyorsan bu şablonu kullanabilirsin.
+### ⚠️ Limit Değişikliği:
+Eğer sunucunda 8 haneli şifrelere izin vermek istiyorsan sadece bu dosyayı değiştirmek yetmez. Oyun motorunun ve veritabanı (MySQL) tablolarının da bu uzunluğu desteklediğinden emin olmalısın.
 
-### ⚠️ Secret Flag:
-Güvenlik için bu flag her zaman açık tutulmalıdır.
-
----
-
-## 📉 passworddialog.py Tasarım Hiyerarşisi
+## 📉 passworddialog.py Yapısı
 ```mermaid
 graph TD
-    A[PasswordDialog] --> B[Board: Ana Panel]
-    B --> C[TitleBar: Başlık]
-    B --> D[PasswordSlot: Şifre Giriş Kutusu]
-    B --> E[Accept / Cancel Butonları]
+    A[PasswordDialog] --> B[Board]
+    B --> C[Title: Şifre Giriniz]
+    B --> D[PasswordValue: Gizli Giriş ***]
+    B --> E[Ok / Cancel Butonları]
 ```
-
----
-
-**Veri Akışı:** `root/uicommon.py` -> `passworddialog.py` -> `Server (Password Check)`.

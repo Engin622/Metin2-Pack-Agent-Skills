@@ -1,44 +1,42 @@
-# 🎓 Metin2 Skills: `inputdialog.py` (Genel Giriş Penceresi)
+# 🎓 Metin2 Skills: `inputdialog.py` & `inputdialogwithdescription.py` (Metin Giriş Pencereleri)
 
-`inputdialog.py`, oyunda kullanıcıdan basit bir metin veya sayı girmesi istendiğinde (Örn: Arkadaş eklerken isim yazma, miktar belirtme) kullanılan joker penceredir.
+Bu iki dosya, oyun içinde oyuncunun bir metin veya sayı girmesi gerektiğinde (Örneğin: Lonca adı belirleme, Eşya ayırma miktarı girme, Komut yazma) açılan küçük veri giriş pencereleridir.
 
 ---
 
-## 🔍 Neleri Yönetir?
+## 🔍 Neleri Yönetirler?
 
-### 1. Giriş Alanı (`InputSlot` & `InputValue`)
-- **`type : editline`**: Kullanıcının klavye ile yazı yazabildiği asıl alandır.
-- **`input_limit : 12`**: Varsayılan olarak 12 karakterlik bir sınır barındırır.
-- **`slotbar`**: Giriş alanının etrafındaki koyu renkli çerçeveyi oluşturur.
+### 1. Metin Kutusu (`InputValue`)
+`editline` tipinde bir giriş alanıdır. Oyuncunun klavyesiyle metin yazabildiği tek alandır.
+- **`input_limit : 12`**: Varsayılan olarak 12 karakter girilmesine izin verilir. Bu sınır, giriş penceresinin nerede kullanıldığına bağlı olarak Python tarafında (`uiCommon.py`) değiştirilebilir.
 
-### 2. Onay ve İptal Butonları
-Girilen veriyi işleme sokan (`AcceptButton`) veya vazgeçen (`CancelButton`) butonlardır.
+### 2. Açıklama Metni (`Description`)
+Sadece `inputdialogwithdescription.py` dosyasında bulunur. Ne girilmesi gerektiğini anlatan (Örn: "Kaç adet ayırmak istiyorsun?") başlık metnini yönetir.
 
-### 3. Başlıklı Panel (`board_with_titlebar`)
-Pencere, bir başlık çubuğuna sahiptir. Başlık metni kod tarafında dinamik olarak (Örn: "İsim Giriniz") doldurulur.
+### 3. Ortalanmış Butonlar (`AcceptButton` & `CancelButton`)
+"Tamam" ve "İptal" butonları, pencerenin alt kısmında simetrik ve ortalanmış şekilde durur.
 
 ---
 
 ## 🛠️ Modifikasyon ve Kritik Uyarılar
 
-### ✅ Sayı Girişi Kısıtlaması:
-Eğer bu pencerenin sadece rakam kabul etmesini istiyorsan, `root/uicommon.py` içindeki `InputDialog` sınıfında `InputValue.SetNumberMode()` fonksiyonunu çağırmalısın.
+### ✅ Input Limitine Dikkat:
+Eğer bu pencereleri özel bir sistem (Örneğin: 20 haneli Hediye Kodu girme) için kullanacaksan, `input_limit` değerini artırman gerekir. Aksi halde oyuncu 12. karakterden sonrasını yazamaz.
 
-### ⚠️ Genişlik Ayarı:
-Eğer uzun bir metin girişi gerekiyorsa (Örn: Pazar ismi), `width: 170` değerini artırıp `InputSlot` ve `InputValue` genişliklerini de buna paralel olarak büyütmelisin.
+### ⚠️ Gizli Şifre Girişleri:
+Bu pencere varsayılan olarak yazılan metni gösterir (Düz metin). Eğer şifre girişi için kullanılacaksa (yıldızlı `***` görünüm), Python kodunda `SetSecret(True)` metodu çağrılmalıdır; bu `.py` tasarım dosyasından tek başına yapılamaz.
 
 ---
 
-## 📉 inputdialog.py Tasarım Hiyerarşisi
+## 📉 Yapısal Karşılaştırma
 ```mermaid
-graph TD
-    A[InputDialog] --> B[Board: Başlıklı Kasa]
-    B --> C[InputSlot: Yazı Yazma Kutusu]
-    C --> C1[InputValue: Editline Kontrolü]
-    B --> D[AcceptButton: Tamam]
-    B --> E[CancelButton: İptal]
+graph LR
+    A[InputDialog: 170x90] --> B[Sadece Giriş Kutusu]
+    A --> C[Tamam / İptal Butonu]
+    
+    D[InputDialogWithDescription: 170x106] --> E[Açıklama Metni]
+    D --> B
+    D --> C
 ```
 
----
-
-**Veri Akışı:** `Oyuncu Girdisi` -> `root/uicommon.py` -> `Çeşitli Sistemler`.
+**Sonuç:** Bu dosyalar, oyun motorunun oyuncudan "Dinamik Veri" aldığı köprülerdir. Kullanıcı dostu ve net olmaları gerekir.

@@ -1,43 +1,30 @@
 # 🎓 Metin2 Skills: `mallwindow.py` (Nesne Market Deposu)
 
-`mallwindow.py`, Nesne Market üzerinden satın alınan eşyaların oyun içine teslim edildiği "Nesne Market Deposu" penceresinin tasarımıdır. Standart depodan farklı olarak sadece eşya alımı için kullanılır.
+`mallwindow.py`, oyuncunun Nesne Market'ten (Item Shop) satın aldığı eşyaların gönderildiği "Nesne Market Deposu" arayüzünün tasarım dosyasıdır.
 
 ---
 
 ## 🔍 Neleri Yönetir?
 
-### 1. Pencere Boyutları (`width` / `height`)
-Pencere 176x327 boyutlarındadır. Bu genişlik (176), standart bir envanter sayfasıyla aynıdır çünkü içerideki slot yapısı envantere benzer.
+### 1. Ana Çerçeve (`SafeboxWindow` referansı)
+Bu pencerenin iç yapısı aslında `SafeboxWindow` (Depo) ile aynı mantıkta çalışır. İsmi `SafeboxWindow` olarak tanımlanmıştır ancak Nesne Market Deposu için özel olarak çağrılır. Boyutları `176x327`'dir.
 
-### 2. Başlık ve Kapatma (`TitleBar`)
-- **`text`**: `uiScriptLocale.MALL_TITLE` (Nesne Market Deposu) başlığını görüntüler.
-- **`style: attach`**: Başlık çubuğunun ana pencereye yapışık olduğunu ve pencereyle birlikte hareket ettiğini belirtir.
-
-### 3. Slot Yapısı (Kod İçinde)
-Bu `.py` dosyasında `ItemSlot` bloğu görünmese de, `root/uisafebox.py` dosyası bu pencereye dinamik olarak `ItemSlot` (eşya kareleri) ekler.
+### 2. Başlık ve Kapat Butonu
+- **`TitleBar`**: "Nesne Market Deposu" başlığını içerir.
+- **`ExitButton`**: Alt kısımda bulunan Kapat butonunu yönetir.
 
 ---
 
 ## 🛠️ Modifikasyon ve Kritik Uyarılar
 
-### ✅ Görünüm Değiştirme:
-Eğer market deposunu daha geniş yapmak istersen (Örn: 3 sayfa yan yana), `width` değerini `176 * 3` şeklinde artırabilirsin ancak bu durumda `root` tarafındaki slot dizilimini de düzenlemen gerekir.
+### ⚠️ Depo ile Karışıklık:
+Bu dosyanın kod içi `name` değeri `"SafeboxWindow"` olarak bırakılmıştır. Bu, Metin2'nin klasik copy-paste mirasıdır. Eşyaların yerleştirileceği slotlar (ızgara) Python kodunda dinamik olarak bu pencereye eklenir.
 
-### ⚠️ Karıştırmayın:
-Bu dosya `safeboxwindow.py` (Normal Depo) ile karıştırılmamalıdır. Nesne Market deposunun kendine özel bir işleyişi vardır.
-
----
-
-## 📉 mallwindow.py Tasarım Hiyerarşisi
+## 📉 mallwindow.py Yapısı
 ```mermaid
 graph TD
-    A[MallWindow: Nesne Market Deposu] --> B[board: Arka Panel]
-    B --> C[TitleBar: Başlık Çubuğu]
-    C --> D[TitleName: Metin]
-    B --> E[ExitButton: Kapatma Butonu]
-    B -.-> F[ItemSlots: Eşya Yuvaları (Kodla Eklenir)]
+    A[Nesne Market Deposu] --> B[Board: 176x327 Panel]
+    B --> C[TitleBar: Başlık]
+    B --> D[ItemSlots: Dinamik Eklenen Eşyalar]
+    B --> E[ExitButton: Kapat Butonu]
 ```
-
----
-
-**Veri Akışı:** `DB (Market Eşyaları)` -> `uisafebox.py` (Logic) -> `mallwindow.py` (Arayüz) -> Ekran.

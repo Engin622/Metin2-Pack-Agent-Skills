@@ -1,47 +1,43 @@
-# 🎓 Metin2 Skills: `fishingwindow.py` (Balık Tutma Arayüzü)
+# 🎓 Metin2 Skills: `fishingwindow.py` (Balık Tutma Arayüzü Tasarımı)
 
-`fishingwindow.py`, oyuncunun oltasını suya attığında açılan ve balığın oltaya vurup vurmadığını, çekme anını takip ettiği animasyonlu mini oyun penceresidir.
+`fishingwindow.py`, oyuncu denize veya göle olta attığında açılan balık tutma (Fishing) mini-game arayüzünün tasarım dosyasıdır.
 
 ---
 
 ## 🔍 Neleri Yönetir?
 
 ### 1. Su Animasyonu (`Water`)
-Pencerenin ortasında duran ve su dalgalanması efekti veren 7 karelik (`00.dds` - `06.dds`) bir animasyondur.
+`ani_image` nesnesi ile suyun dalgalanmasını sağlayan 7 karelik bir DDS animasyonu oynatır (`water/00.dds` - `06.dds`).
 
-### 2. Olta Durumları (`Float`)
-Balık tutma sürecinin farklı aşamalarını temsil eden animasyon gruplarını barındırır:
-- **`Float_Wait`**: Oltanın su üzerinde hareketsiz durduğu an.
-- **`Float_Throw`**: Oltanın suya ilk atılma anı.
-- **`Float_React`**: Balığın yemi ısırdığı (Oltanın titrediği) kritik an.
-- **`Float_Catch`**: Balığın başarıyla çekilme animasyonu.
+### 2. Balık Bekleme Animasyonu (`Float_Wait`)
+Oltanın mantarının (Float) suyun üstünde beklemesini veya hareket etmesini gösteren animasyonu yönetir.
 
-### 3. Balık İsmi (`FishName`)
-Eğer bir balık oltaya takıldıysa, o anki durumu veya balık türünü belirten metin alanıdır.
+### 3. Çerçeve ve Arka Plan (`FishingBox1`, `FishingBox2`)
+Arayüzün dış çerçevesini ve su animasyonunun oturduğu gri/siyah altlık kutularını oluşturur.
+
+### 4. Balık İsmi (`FishName`)
+Yakalanma ihtimali olan balığın (veya oltaya takılan nesnenin) ismini gösteren statik metin alanını yönetir.
 
 ---
 
 ## 🛠️ Modifikasyon ve Kritik Uyarılar
 
-### ✅ Animasyon Hızı:
-Eğer oltanın daha hızlı veya yavaş titremesini istiyorsan, `Float_React` altındaki `delay` değerini değiştirebilirsin. Düşük değerler animasyonu hızlandırır.
+### ✅ Balık Botu Tespiti:
+Bot yazılımları genellikle ekran okuma veya paket gönderme yöntemleriyle çalışır. Bu pencere aktif olduğunda arka planda UI güncellemeleri tetiklenir. Çerçeve boyutlarını (Örn: `131x131`) değiştirirseniz pixel-search tabanlı basit botları kırabilirsiniz.
 
-### ⚠️ Görsel Senkronizasyon:
-Balık tutma sistemini tamamen görselleştirmek istersen `FISHING_PATH` üzerindeki `.dds` ve `.tga` dosyalarını yeni tasarımlarla değiştirebilirsin. Ancak animasyon kare sayısının (Örn: 14 kare) `.py` içindeki listeyle eşleşmesi gerekir.
+### ⚠️ Gecikme (Delay) Değerleri:
+`delay : 7` gibi değerler animasyonun hızını belirler. Bu değeri çok küçültürseniz dalgalar aşırı hızlı akar, büyütürseniz oyun kasıyor gibi görünür.
 
 ---
 
-## 📉 fishingwindow.py Tasarım Hiyerarşisi
+## 📉 fishingwindow.py Yapısı
 ```mermaid
 graph TD
-    A[FishingWindow] --> B[Board: Ana Panel]
-    B --> C[Water: Su Arka Planı]
-    C --> D1[Float_Wait: Bekleme]
-    C --> D2[Float_React: Isırma]
-    C --> D3[Float_Catch: Yakalama]
-    B --> E[FishingButton: Çekme Butonu]
+    A[FishingWindow] --> B[Board: Başlıklı Ana Panel]
+    B --> C[FishingBox1/2: Arka Plan Renkleri]
+    B --> D[Water: Su Dalgalanma Animasyonu]
+    D --> E[FishName: Yakalanan Balık Metni]
+    D --> F[Float_Wait: Olta Mantarı Animasyonu]
 ```
 
----
-
-**Veri Akışı:** `Server (Fishing Packets)` -> `root/uifishing.py` -> `fishingwindow.py`.
+**Sonuç:** `fishingwindow.py`, oyuncuyu aksiyondan uzaklaştırıp daha sakin bir mini oyuna odaklayan, görsel tabanlı bir sistemin merkezidir.

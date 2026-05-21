@@ -1,41 +1,38 @@
-# 🎓 Metin2 Skills: `equipmentdialog.py` (Ekipman Görüntüleme)
+# 🎓 Metin2 Skills: `equipmentdialog.py` (Hedef Ekipman Tasarımı)
 
-`equipmentdialog.py`, bir oyuncunun üzerine sağ tıklayıp "Ekipman" (View Equipment) dediğinizde, o oyuncunun giydiği eşyaları görmenizi sağlayan penceredir.
+`equipmentdialog.py`, oyuncunun başka bir karaktere sağ tıklayarak "Ekipman Görüntüle" dediğinde (veya Casus Camı gibi eşyalarla) açılan, sadece görüntüleme amaçlı ekipman penceresidir.
 
 ---
 
 ## 🔍 Neleri Yönetir?
 
-### 1. Rakip Karakter Figürü (`EquipmentBaseImage`)
-Arka planda karakterin giydiği eşyaların konumlarını temsil eden insan figürlü bir resim (`equipment_bg_without_ring.tga`) barındırır.
+### 1. Daraltılmış Ekipman Slotları
+Kendi envanterimizdekinden farklı olarak burada envanter kutuları (Çanta) yoktur. Sadece Zırh, Silah, Kask, Kolye, Küpe gibi `EquipmentSlot` alanları bulunur.
 
-### 2. Salt Okunur Slotlar (`EquipmentSlot`)
-Buradaki slotlar sadece görüntüleme amaçlıdır. Oyuncu bu penceredeki eşyaları hareket ettiremez veya çıkaramaz.
-- **`index`**: 0-10 arası standart ekipman slotlarını, 23 nolu index ise genellikle kuşak veya pelerin gibi ek slotları temsil eder.
+### 2. Arka Plan Şablonu
+Eşyaların yerleşeceği arkaplan görseli olarak `equipment_bg_without_ring.tga` (Nişan/Yüzük hariç) veya benzeri özel bir şablon kullanır.
 
-### 3. Başlık (`Title`)
-Pencerenin başlığında ekipmanına bakılan oyuncunun ismi (`Character Name`) dinamik olarak görünür.
+### 3. Özel Başlık (`TitleBar`)
+Başlık alanında sabit bir "Ekipman" yazısı yerine, ekipmanı görüntülenen hedefin ismi yazar (`title : "Character Name"`). Kod tarafında bu başlık dinamik olarak hedefin ismiyle değiştirilir.
 
 ---
 
 ## 🛠️ Modifikasyon ve Kritik Uyarılar
 
-### ✅ Yeni Slot Ekleme:
-Eğer sunucunda yeni ekipman türleri (Örn: "Yüzükler") varsa, bu pencereye de ilgili koordinatlarla yeni slotlar eklemelisin. Aksi halde başkasının ekipmanına baktığında o eşyalar görünmez.
+### ✅ Nişan / Kemer Eklemek:
+Standart Metin2'de diğer oyuncunun kemerini veya yüzüğünü görmek kapalı olabilir. Slot listesine `{"index":21 ...}` gibi yorum satırı (##) yapılmış alanları açarak, karşı tarafın yüzüklerini de gösterebilirsin. (Tabii sunucu tarafının da bu veriyi yollaması gerekir).
 
-### ⚠️ Görsel Senkronizasyon:
-`equipment_bg_without_ring.tga` dosyası, yüzük slotlarının olmadığı eski tip bir arka plandır. Eğer sisteminde yüzük slotları varsa, bu görseli yüzüklerin yerini gösteren yeni bir resimle değiştirmelisin.
+### ⚠️ Salt Okunur (Read-Only) Tasarım:
+Bu penceredeki slotlar, envanterden farksız gibi görünse de kod tarafında (`uiEquipmentDialog.py`) bu eşyalar sürüklenemez, çıkarılamaz veya kullanılamaz olarak işaretlenmiştir.
 
 ---
 
-## 📉 equipmentdialog.py Tasarım Hiyerarşisi
+## 📉 equipmentdialog.py Yapısı
 ```mermaid
 graph TD
-    A[EquipmentDialog] --> B[Board: Başlıklı Kasa]
-    B --> C[EquipmentBaseImage: Arka Plan Resmi]
-    C --> D[EquipmentSlot: İzleme Slotları]
+    A[EquipmentDialog: 180x230] --> B[Board: Hedef İsimli Başlık]
+    B --> C[EquipmentBaseImage: Vücut Silueti]
+    C --> D[EquipmentSlot: Sadece Ekipman Yuvaları]
 ```
 
----
-
-**Veri Akışı:** `Server (View Equipment Packet)` -> `root/uiequipmentdialog.py` -> `equipmentdialog.py` -> Ekran.
+**Sonuç:** `equipmentdialog.py`, oyunun "Gözlem Aracı"dır. Diğer oyuncuların ne giydiğini inceleyip rekabeti artırmak için önemli bir işlevi yerine getirir.
