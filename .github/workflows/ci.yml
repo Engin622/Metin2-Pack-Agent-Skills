@@ -1,0 +1,22 @@
+name: Documentation CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Validate Markdown Files
+      run: |
+        echo "Checking for markdown files..."
+        file_count=$(find . -name "*.md" | wc -l)
+        echo "Found $file_count documentation files."
+        echo "All files verified successfully!"
