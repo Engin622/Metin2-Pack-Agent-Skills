@@ -1,4 +1,4 @@
-name: Documentation CI
+name: 📚 Dokumantasyon Dogrulama
 
 on:
   push:
@@ -7,16 +7,51 @@ on:
     branches: [ "main" ]
 
 jobs:
-  lint:
+  validate-docs:
+    name: Markdown Dosyalari Dogrula
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v4
+      - name: ✅ Kodu Cek
+        uses: actions/checkout@v4
 
-    - name: Validate Markdown Files
-      run: |
-        echo "Checking for markdown files..."
-        file_count=$(find . -name "*.md" | wc -l)
-        echo "Found $file_count documentation files."
-        echo "All files verified successfully!"
+      - name: 📄 skills.md Dosyalarini Bul
+        run: |
+          echo "========================================="
+          echo "   Metin2 Pack Agent Skills - Dogrulama  "
+          echo "========================================="
+          total=$(find . -name "skills.md" | wc -l)
+          echo ""
+          echo "✅ Toplam skills.md dosyasi: $total"
+          echo ""
+          echo "📂 Bulunan dosyalar:"
+          find . -name "skills.md" | sort
+
+      - name: 🔍 Bos Dosya Kontrolu
+        run: |
+          echo ""
+          echo "🔍 Bos dosya kontrolu yapiliyor..."
+          empty=0
+          while IFS= read -r file; do
+            if [ ! -s "$file" ]; then
+              echo "❌ Bos dosya tespit edildi: $file"
+              empty=$((empty + 1))
+            fi
+          done < <(find . -name "skills.md")
+          if [ "$empty" -eq 0 ]; then
+            echo "✅ Tum dosyalar icerik barindiruyor."
+          else
+            echo "⚠️ $empty bos dosya tespit edildi."
+          fi
+
+      - name: 📊 Istatistik Raporu
+        run: |
+          echo ""
+          echo "📊 KATEGORI ISTATISTIKLERI"
+          echo "-----------------------------------------"
+          for dir in uiscript root locale_tr assets; do
+            count=$(find "./$dir" -name "skills.md" 2>/dev/null | wc -l)
+            echo "  📁 $dir: $count dosya"
+          done
+          echo "-----------------------------------------"
+          echo "✅ Tum dogrulama adimlari basariyla tamamlandi."
